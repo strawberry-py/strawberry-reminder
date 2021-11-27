@@ -86,9 +86,7 @@ class Reminder(commands.Cog):
             ),
         )
 
-    async def _process_text(
-        self, ctx: commands.Context, datetime_str: str, text: Optional[str]
-    ):
+    async def _process_text(self, ctx: commands.Context, text: Optional[str]):
         if text is not None and len(text) > 1024:
             text = text[:1024]
             text = text[:-3] + "```" if text.count("```") % 2 != 0 else text
