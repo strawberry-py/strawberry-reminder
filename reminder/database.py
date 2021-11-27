@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 
 import enum
+import nextcord
 from sqlalchemy import BigInteger, Column, Integer, String, DateTime, Enum
 from typing import List, Dict
 

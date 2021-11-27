@@ -1,6 +1,3 @@
-import asyncio
-import re
-
 from datetime import datetime, timedelta
 from typing import Optional, List
 
@@ -102,7 +99,7 @@ class Reminder(commands.Cog):
         reminder_user = await self._get_member(query.recipient_id, query.guild_id)
 
         if reminder_user is None:
-            reminder_user_name = "_({unknown_user})_".format(_(ctx, "Unknown user"))
+            reminder_user_name = "_({unknown})_".format(unknown=_(utx, "Unknown user"))
         else:
             reminder_user_name = nextcord.utils.escape_markdown(
                 reminder_user.display_name
