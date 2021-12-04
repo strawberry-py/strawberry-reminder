@@ -185,6 +185,11 @@ class Reminder(commands.Cog):
     async def remindme(
         self, ctx: commands.Context, datetime_str: str, *, text: Optional[str]
     ):
+        """Create reminder for you.
+        Args:
+            datetime_str: Datetime string (preferably quoted).
+            text: Optional message to remind.
+        """
         text = await self._process_text(ctx, text)
 
         try:
@@ -229,6 +234,12 @@ class Reminder(commands.Cog):
     async def remind(
         self, ctx, member: nextcord.Member, datetime_str: str, *, text: str
     ):
+        """Create reminder for another user.
+        Args:
+            member: Member to remind.
+            datetime_str: Datetime string (preferably quoted).
+            text: Optional message to remind.
+        """
         text = await self._process_text(ctx, text)
 
         try:
@@ -272,7 +283,10 @@ class Reminder(commands.Cog):
 
     @reminder_.command(name="list")
     async def reminder_list(self, ctx, status: str = "WAITING"):
-        """List own reminders"""
+        """List own reminders.
+        Args:
+            status: Reminder status (default: WAITING)
+        """
 
         try:
             status = ReminderStatus[status.upper()]
@@ -291,7 +305,10 @@ class Reminder(commands.Cog):
     @commands.check(check.acl)
     @reminder_.command(name="all")
     async def reminder_all(self, ctx, status: str = "WAITING"):
-        """List all reminders"""
+        """List all reminders.
+        Args:
+            status: Reminder status (default: WAITING)
+        """
 
         try:
             status = ReminderStatus[status.upper()]
@@ -308,7 +325,11 @@ class Reminder(commands.Cog):
 
     @reminder_.command(name="reschedule", aliases=["postpone", "delay"])
     async def reminder_reschedule(self, ctx, idx: int, datetime_str: str):
-        """Reschedule reminder"""
+        """Reschedule your reminder.
+        Args:
+            idx: ID of reminder.
+            datetime_str: Datetime string (preferably quoted).
+        """
         query = ReminderItem.get_all(idx=idx)
         if query is None:
             await ctx.send(
@@ -362,7 +383,10 @@ class Reminder(commands.Cog):
 
     @reminder_.command(name="delete", aliases=["remove"])
     async def reminder_delete(self, ctx, idx: int):
-        """Delete reminder"""
+        """Delete reminder
+        Args:
+            idx: ID of reminder.
+        """
         query = ReminderItem.get_all(idx=idx)
         if query is None:
             await ctx.send(
