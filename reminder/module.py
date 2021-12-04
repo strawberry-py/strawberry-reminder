@@ -376,7 +376,8 @@ class Reminder(commands.Cog):
         if value is None:
             await ctx.send(_(ctx, "Reschedule timed out."))
         elif value:
-            query.delete()
+            query.remind_date = date
+            query.save()
             await ctx.send(_(ctx, "Reminder rescheduled."))
         else:
             await ctx.send(_(ctx, "Rescheduling aborted."))
