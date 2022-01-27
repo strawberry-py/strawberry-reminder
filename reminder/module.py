@@ -94,7 +94,7 @@ class Reminder(commands.Cog):
         return text
 
     async def _get_embed(self, utx, query):
-        reminder_user = await self._get_member(query.recipient_id, query.guild_id)
+        reminder_user = await self._get_member(query.author_id, query.guild_id)
 
         if reminder_user is None:
             reminder_user_name = "_({unknown})_".format(unknown=_(utx, "Unknown user"))
