@@ -232,7 +232,7 @@ class Reminder(commands.Cog):
     @commands.check(check.acl)
     @commands.command()
     async def remind(
-        self, ctx, member: nextcord.Member, datetime_str: str, *, text: str
+        self, ctx, member: nextcord.Member, datetime_str: str, *, text: Optional[str]
     ):
         """Create reminder for another user.
         Args:
