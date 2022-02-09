@@ -181,6 +181,7 @@ class Reminder(commands.Cog):
     # COMMANDS
 
     @commands.cooldown(rate=5, per=20.0, type=commands.BucketType.user)
+    @check.acl2(check.ACLevel.EVERYONE)
     @commands.command()
     async def remindme(
         self, ctx: commands.Context, datetime_str: str, *, text: Optional[str]
@@ -229,7 +230,7 @@ class Reminder(commands.Cog):
 
     @commands.guild_only()
     @commands.cooldown(rate=5, per=20.0, type=commands.BucketType.user)
-    @commands.check(check.acl)
+    @check.acl2(check.ACLevel.MEMBER)
     @commands.command()
     async def remind(
         self, ctx, member: nextcord.Member, datetime_str: str, *, text: Optional[str]
@@ -277,10 +278,12 @@ class Reminder(commands.Cog):
             )
         )
 
+    @check.acl2(check.ACLevel.EVERYONE)
     @commands.group(name="reminder")
     async def reminder_(self, ctx):
         await utils.discord.send_help(ctx)
 
+    @check.acl2(check.ACLevel.EVERYONE)
     @reminder_.command(name="list")
     async def reminder_list(self, ctx, status: str = "WAITING"):
         """List own reminders.
@@ -302,7 +305,7 @@ class Reminder(commands.Cog):
         await self._send_reminder_list(ctx, query)
 
     @commands.guild_only()
-    @commands.check(check.acl)
+    @check.acl2(check.ACLevel.MOD)
     @reminder_.command(name="all")
     async def reminder_all(self, ctx, status: str = "WAITING"):
         """List all reminders.
@@ -323,6 +326,7 @@ class Reminder(commands.Cog):
         query = ReminderItem.get_all(guild=ctx.guild, status=status)
         await self._send_reminder_list(ctx, query)
 
+    @check.acl2(check.ACLevel.EVERYONE)
     @reminder_.command(name="reschedule", aliases=["postpone", "delay"])
     async def reminder_reschedule(self, ctx, idx: int, datetime_str: str):
         """Reschedule your reminder.
@@ -382,6 +386,7 @@ class Reminder(commands.Cog):
         else:
             await ctx.send(_(ctx, "Rescheduling aborted."))
 
+    @check.acl2(check.ACLevel.EVERYONE)
     @reminder_.command(name="delete", aliases=["remove"])
     async def reminder_delete(self, ctx, idx: int):
         """Delete reminder
