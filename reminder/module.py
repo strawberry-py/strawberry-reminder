@@ -149,7 +149,7 @@ class Reminder(commands.Cog):
             reminders.append(reminder)
 
         table_pages: List[str] = utils.text.create_table(
-            reminders,
+            reminders[::-1],
             {
                 "idx": _(ctx, "Reminder ID"),
                 "author_name": _(ctx, "Author"),
