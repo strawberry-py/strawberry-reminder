@@ -144,7 +144,7 @@ class Reminder(commands.Cog):
             reminder.remind_name = remind_name
             reminder.remind_date = item.remind_date
             reminder.status = item.status.name
-            reminder.url = item.permalink.replace("https://discord.com/channels/", "")
+            reminder.message = item.message
 
             reminders.append(reminder)
 
@@ -156,7 +156,7 @@ class Reminder(commands.Cog):
                 "remind_name": _(ctx, "Reminded"),
                 "remind_date": _(ctx, "Remind date"),
                 "status": _(ctx, "Status"),
-                "url": _(ctx, "URL stub"),
+                "message": _(ctx, "Message text"),
             },
         )
 
