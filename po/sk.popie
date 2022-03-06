@@ -37,11 +37,11 @@ msgstr Obsah správy
 msgid I don't know how to parse `{datetime_str}`, please try again.
 msgstr Neviem ako prečítať `{datetime_str}`, skúste znovu.
 
-msgid Reminder for you created. Reminder will be sent: {date}
-msgstr Pripomienka pre teba vytvorená. Pripomienka bude odoslaná: {date}
+msgid Reminder created. Reminder will be sent: {date}
+msgstr Pripomienka vytvorená. Bude odoslaná: {date}
 
 msgid Reminder for {name} created. Reminder will be sent: {date}
-msgstr Pripomienka pre {name} vytvorená. Pripomienka bude odoslaná: {date}
+msgstr Pripomienka pre {name} vytvorená. Bude odoslaná: {date}
 
 msgid Invalid status. Allowed: {status}
 msgstr Neplatný status. Povolené: {status}

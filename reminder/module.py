@@ -223,9 +223,7 @@ class Reminder(commands.Cog):
 
         await ctx.message.add_reaction("✅")
         await ctx.message.author.send(
-            _(ctx, "Reminder for you created. Reminder will be sent: {date}").format(
-                date=date
-            )
+            _(ctx, "Reminder created. Reminder will be sent: {date}").format(date=date)
         )
 
     @commands.guild_only()
