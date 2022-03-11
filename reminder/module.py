@@ -357,7 +357,7 @@ class Reminder(commands.Cog):
             return
 
         if date < datetime.now():
-            await ctx.send(_(ctx, "Reschedule time must be in furuter."))
+            await ctx.send(_(ctx, "Reschedule time must be in future."))
             return
 
         print_date = utils.time.format_datetime(date)

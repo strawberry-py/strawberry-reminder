@@ -52,7 +52,7 @@ msgstr Upomínka s ID {id} neexistuje.
 msgid Can't reschedule other's reminders.
 msgstr Nemůžeš přeplánovat cizí upomínky.
 
-msgid Reschedule time must be in furuter.
+msgid Reschedule time must be in future.
 msgstr Čas pro přeplánování musí být v budoucnosti.
 
 msgid New time
