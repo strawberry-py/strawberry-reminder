@@ -84,3 +84,9 @@ msgstr Upomínka smazána.
 
 msgid Deleting aborted.
 msgstr Mazání zrušeno.
+
+msgid You don't have any reminders older than one day.
+msgstr Nemáš žádné upomínky starší než jeden den.
+
+msgid **{count}** reminders have been deleted.
+msgstr Bylo smazáno **{count}** upomínek.

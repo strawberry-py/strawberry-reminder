@@ -153,6 +153,21 @@ class ReminderItem(database.base):
         session.delete(self)
         session.commit()
 
+    @classmethod
+    def batch_delete(
+        cls, guild: nextcord.Guild, recipient: nextcord.Member, before: datetime
+    ) -> int:
+        """Delete all reminders with finish date before specified timestamp.
+
+        :return: Number of deleted entries.
+        """
+        query = session.query(cls).filter_by(
+            guild_id=guild.id, recipient_id=recipient.id
+        )
+        count: int = query.filter(cls.remind_date < before).delete()
+        session.commit()
+        return count
+
     def __repr__(self) -> str:
         return (
             f'<ReminderItem idx="{self.idx}" guild_id="{self.guild_id}" '

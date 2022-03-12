@@ -419,6 +419,21 @@ class Reminder(commands.Cog):
         else:
             await ctx.send(_(ctx, "Deleting aborted."))
 
+    @check.acl2(check.ACLevel.EVERYONE)
+    @reminder_.command(name="clean")
+    async def reminder_clean(self, ctx):
+        """Delete all your reminders that finished at least 24 hours ago."""
+        before: datetime = datetime.now() - timedelta(hours=24)
+        count: int = ReminderItem.batch_delete(ctx.guild, ctx.author, before)
+
+        if not count:
+            await ctx.reply(_(ctx, "You don't have any reminders older than one day."))
+            return
+
+        await ctx.reply(
+            _(ctx, "**{count}** reminders have been deleted.").format(count=count)
+        )
+
 
 class ReminderDummy:
     pass
