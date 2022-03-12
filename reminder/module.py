@@ -41,7 +41,6 @@ class Reminder(commands.Cog):
 
     @reminder.before_loop
     async def before_reminder(self):
-        print("Reminder loop waiting until ready().")
         await self.bot.wait_until_ready()
 
     # HELPER FUNCTIONS
@@ -124,7 +123,7 @@ class Reminder(commands.Cog):
 
         return embed
 
-    async def _send_reminder_list(self, ctx, query):
+    async def _send_reminder_list(self, ctx, query, *, include_reminded: bool = True):
         reminders = []
 
         for item in query:
@@ -142,26 +141,29 @@ class Reminder(commands.Cog):
             reminder.idx = item.idx
             reminder.author_name = author_name
             reminder.remind_name = remind_name
-            reminder.remind_date = item.remind_date
+            reminder.remind_date = item.remind_date.strftime("%Y-%m-%d %H:%M")
             reminder.status = item.status.name
             reminder.message = item.message
+            if len(reminder.message) > 30:
+                reminder.message = reminder.message[:29] + "\N{HORIZONTAL ELLIPSIS}"
 
             reminders.append(reminder)
 
-        table_pages: List[str] = utils.text.create_table(
-            reminders[::-1],
-            {
-                "idx": _(ctx, "Reminder ID"),
-                "author_name": _(ctx, "Author"),
-                "remind_name": _(ctx, "Reminded"),
-                "remind_date": _(ctx, "Remind date"),
-                "status": _(ctx, "Status"),
-                "message": _(ctx, "Message text"),
-            },
-        )
+        table_columns: dict = {
+            "idx": _(ctx, "ID"),
+            "author_name": _(ctx, "Author"),
+            "remind_name": _(ctx, "Reminded"),
+            "remind_date": _(ctx, "Remind date"),
+            "status": _(ctx, "Status"),
+            "message": _(ctx, "Message text"),
+        }
+        if not include_reminded:
+            del table_columns["remind_name"]
+
+        table_pages: List[str] = utils.text.create_table(reminders[::-1], table_columns)
 
         for table_page in table_pages:
-            await ctx.send("```" + table_page + "```")
+            await ctx.send("```" + table_page.replace("`", "'") + "```")
 
     async def _get_member(self, user_id: int, guild_id: int = 0):
         user = None
@@ -187,6 +189,7 @@ class Reminder(commands.Cog):
         self, ctx: commands.Context, datetime_str: str, *, text: Optional[str]
     ):
         """Create reminder for you.
+
         Args:
             datetime_str: Datetime string (preferably quoted).
             text: Optional message to remind.
@@ -234,6 +237,7 @@ class Reminder(commands.Cog):
         self, ctx, member: nextcord.Member, datetime_str: str, *, text: Optional[str]
     ):
         """Create reminder for another user.
+
         Args:
             member: Member to remind.
             datetime_str: Datetime string (preferably quoted).
@@ -284,7 +288,8 @@ class Reminder(commands.Cog):
     @check.acl2(check.ACLevel.EVERYONE)
     @reminder_.command(name="list")
     async def reminder_list(self, ctx, status: str = "WAITING"):
-        """List own reminders.
+        """List reminders for you.
+
         Args:
             status: Reminder status (default: WAITING)
         """
@@ -300,13 +305,14 @@ class Reminder(commands.Cog):
             return
 
         query = ReminderItem.get_all(recipient=ctx.author, status=status)
-        await self._send_reminder_list(ctx, query)
+        await self._send_reminder_list(ctx, query, include_reminded=False)
 
     @commands.guild_only()
     @check.acl2(check.ACLevel.MOD)
     @reminder_.command(name="all")
     async def reminder_all(self, ctx, status: str = "WAITING"):
-        """List all reminders.
+        """List all guild reminders.
+
         Args:
             status: Reminder status (default: WAITING)
         """
@@ -328,6 +334,7 @@ class Reminder(commands.Cog):
     @reminder_.command(name="reschedule", aliases=["postpone", "delay"])
     async def reminder_reschedule(self, ctx, idx: int, datetime_str: str):
         """Reschedule your reminder.
+
         Args:
             idx: ID of reminder.
             datetime_str: Datetime string (preferably quoted).
@@ -388,6 +395,7 @@ class Reminder(commands.Cog):
     @reminder_.command(name="delete", aliases=["remove"])
     async def reminder_delete(self, ctx, idx: int):
         """Delete reminder
+
         Args:
             idx: ID of reminder.
         """
