@@ -37,6 +37,9 @@ msgstr Obsah správy
 msgid I don't know how to parse `{datetime_str}`, please try again.
 msgstr Neviem ako prečítať `{datetime_str}`, skúste znovu.
 
+msgid Time must be in future.
+msgstr Čas musí byť v budúcnosti.
+
 msgid Reminder created. Reminder will be sent: {date}
 msgstr Pripomienka vytvorená. Bude odoslaná: {date}
 
@@ -51,9 +54,6 @@ msgstr Pripomienka s ID {id} neexistuje.
 
 msgid Can't reschedule other's reminders.
 msgstr Nemôžeš preplánovať cudzie pripomienky.
-
-msgid Reschedule time must be in future.
-msgstr Čas pre preplánovanie musí byť v budúcnosti.
 
 msgid New time
 msgstr Nový čas

@@ -207,6 +207,15 @@ class Reminder(commands.Cog):
             )
             return
 
+        if date < datetime.now():
+            await ctx.reply(
+                _(
+                    ctx,
+                    "Time must be in future.",
+                ).format(datetime_str=datetime_str)
+            )
+            return
+
         ReminderItem.add(
             author=ctx.author,
             recipient=ctx.author,
@@ -252,6 +261,15 @@ class Reminder(commands.Cog):
                 _(
                     ctx,
                     "I don't know how to parse `{datetime_str}`, please try again.",
+                ).format(datetime_str=datetime_str)
+            )
+            return
+
+        if date < datetime.now():
+            await ctx.reply(
+                _(
+                    ctx,
+                    "Time must be in future.",
                 ).format(datetime_str=datetime_str)
             )
             return
@@ -364,7 +382,7 @@ class Reminder(commands.Cog):
             return
 
         if date < datetime.now():
-            await ctx.send(_(ctx, "Reschedule time must be in future."))
+            await ctx.send(_(ctx, "Time must be in future."))
             return
 
         print_date = utils.time.format_datetime(date)
