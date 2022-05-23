@@ -418,7 +418,7 @@ class Reminder(commands.Cog):
             idx: ID of reminder.
         """
         query = ReminderItem.get_all(idx=idx)
-        if query is None:
+        if not query:
             await ctx.send(
                 _(ctx, "Reminder with ID {id} does not exists.").format(id=idx)
             )
