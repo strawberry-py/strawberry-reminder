@@ -46,7 +46,7 @@ jobs:
           flake8 . --count --statistics
       - name: Run PoPie
         run: |
-          popie --detached --strict .
+          popie --detached --strict --diff .
       - name: Check TODOs
         run: |
           flake8 . --select=T --exit-zero
