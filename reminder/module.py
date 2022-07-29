@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Optional, List
 
-import nextcord
-from nextcord.ext import commands, tasks
-from nextcord.errors import HTTPException, Forbidden
+import discord
+from discord.ext import commands, tasks
+from discord.errors import HTTPException, Forbidden
 
 import dateutil.parser
 
@@ -98,7 +98,7 @@ class Reminder(commands.Cog):
         if reminder_user is None:
             reminder_user_name = "_({unknown})_".format(unknown=_(utx, "Unknown user"))
         else:
-            reminder_user_name = nextcord.utils.escape_markdown(
+            reminder_user_name = discord.utils.escape_markdown(
                 reminder_user.display_name
             )
 
@@ -175,7 +175,7 @@ class Reminder(commands.Cog):
         if user is None:
             try:
                 user = await self.bot.fetch_user(user_id)
-            except nextcord.errors.NotFound:
+            except discord.errors.NotFound:
                 pass
 
         return user
@@ -243,7 +243,7 @@ class Reminder(commands.Cog):
     @check.acl2(check.ACLevel.MEMBER)
     @commands.command()
     async def remind(
-        self, ctx, member: nextcord.Member, datetime_str: str, *, text: Optional[str]
+        self, ctx, member: discord.Member, datetime_str: str, *, text: Optional[str]
     ):
         """Create reminder for another user.
 
@@ -465,5 +465,5 @@ class ReminderDummy:
     pass
 
 
-def setup(bot) -> None:
-    bot.add_cog(Reminder(bot))
+async def setup(bot) -> None:
+    await bot.add_cog(Reminder(bot))

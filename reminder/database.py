@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 
 import enum
-import nextcord
+import discord
 from sqlalchemy import BigInteger, Column, Integer, String, DateTime, Enum
 from typing import List, Dict
 
@@ -48,8 +48,8 @@ class ReminderItem(database.base):
 
     @staticmethod
     def add(
-        author: nextcord.Member,
-        recipient: nextcord.Member,
+        author: discord.Member,
+        recipient: discord.Member,
         permalink: str,
         message: str,
         origin_date: datetime,
@@ -92,9 +92,9 @@ class ReminderItem(database.base):
 
     @staticmethod
     def get_all(
-        guild: nextcord.Guild = None,
+        guild: discord.Guild = None,
         idx: int = None,
-        recipient: nextcord.Member = None,
+        recipient: discord.Member = None,
         status: ReminderStatus = None,
         min_origin_date: datetime = None,
         max_origin_date: datetime = None,
@@ -106,7 +106,7 @@ class ReminderItem(database.base):
         Args:
             guild: Guild whose items are to be returned.
             idx: ID of reminder item
-            recipient: nextcord.Member object user whose items are to be returned.
+            recipient: discord.Member object user whose items are to be returned.
             status: Status of items to be returned
             min_origin_date: Filter items created after this date.
             max_origin_date: Filter items created before this date.
@@ -155,7 +155,7 @@ class ReminderItem(database.base):
 
     @classmethod
     def batch_delete(
-        cls, guild: nextcord.Guild, recipient: nextcord.Member, before: datetime
+        cls, guild: discord.Guild, recipient: discord.Member, before: datetime
     ) -> int:
         """Delete all reminders with finish date before specified timestamp.
 
