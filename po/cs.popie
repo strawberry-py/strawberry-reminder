@@ -40,11 +40,11 @@ msgstr Nevím jak přečíst `{datetime_str}`, zkus to znovu.
 msgid Time must be in future.
 msgstr Čas musí být v budoucnosti.
 
-msgid Reminder created. Reminder will be sent: {date}
-msgstr Upomínka byla vytvořena. Odeslána bude {date}
+msgid Reminder #{idx} created. It will be sent on **{date}**.
+msgstr Upomínka #{idx} byla vytvořena. Bude odeslána **{date}**.
 
-msgid Reminder for {name} created. Reminder will be sent: {date}
-msgstr Upomínka pro {name} byla vytvořena. Bude odeslána {date}
+msgid Reminder #{idx} created for {name}. It will be sent on **{date}**.
+msgstr Upomínka #{idx} byla vytvořena pro uživatele {name}. Bude odeslána **{date}**.
 
 msgid Invalid status. Allowed: {status}
 msgstr Neplatný status. Povolené: {status}
@@ -78,9 +78,6 @@ msgstr Upomínka #{idx}
 
 msgid Content
 msgstr Obsah
-
-msgid Reminder with ID {id} does not exists.
-msgstr Upomínka s ID {id} neexistuje.
 
 msgid Can't reschedule other's reminders.
 msgstr Nemůžeš přeplánovat cizí upomínky.

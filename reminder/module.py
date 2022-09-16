@@ -216,7 +216,7 @@ class Reminder(commands.Cog):
             )
             return
 
-        ReminderItem.add(
+        item = ReminderItem.add(
             author=ctx.author,
             recipient=ctx.author,
             permalink=ctx.message.jump_url,
@@ -230,12 +230,15 @@ class Reminder(commands.Cog):
         await bot_log.debug(
             ctx.author,
             ctx.channel,
-            f"Reminder created for {ctx.author.name}",
+            f"Reminder #{item.idx} created for {ctx.author.name} "
+            f"to be sent on {item.remind_date}.",
         )
 
         await ctx.message.add_reaction("✅")
         await ctx.message.author.send(
-            _(ctx, "Reminder created. Reminder will be sent: {date}").format(date=date)
+            _(ctx, "Reminder #{idx} created. It will be sent on **{date}**.").format(
+                idx=item.idx, date=utils.time.format_datetime(item.remind_date)
+            )
         )
 
     @commands.guild_only()
@@ -274,7 +277,7 @@ class Reminder(commands.Cog):
             )
             return
 
-        ReminderItem.add(
+        item = ReminderItem.add(
             author=ctx.author,
             recipient=member,
             permalink=ctx.message.jump_url,
@@ -288,13 +291,19 @@ class Reminder(commands.Cog):
         await guild_log.debug(
             ctx.author,
             ctx.channel,
-            f"Reminder created for {member.name}",
+            f"Reminder #{item.idx} created for {member.name} "
+            f"to be sent on {item.remind_date}.",
         )
 
         await ctx.message.add_reaction("✅")
         await ctx.message.author.send(
-            _(ctx, "Reminder for {name} created. Reminder will be sent: {date}").format(
-                name=member.display_name, date=date
+            _(
+                ctx,
+                "Reminder #{idx} created for {name}. It will be sent on **{date}**.",
+            ).format(
+                idx=item.idx,
+                name=member.display_name,
+                date=utils.time.format_datetime(item.remind_date),
             )
         )
 
@@ -408,7 +417,7 @@ class Reminder(commands.Cog):
         query = ReminderItem.get_all(idx=idx)
         if query is None:
             await ctx.send(
-                _(ctx, "Reminder with ID {id} does not exists.").format(id=idx)
+                _(ctx, "Reminder with ID {id} does not exist.").format(id=idx)
             )
             return
 
@@ -441,24 +450,26 @@ class Reminder(commands.Cog):
             value=print_date,
             inline=False,
         )
-
         embed.title = _(ctx, "Do you want to reschedule this reminder?")
-
         view = ConfirmView(ctx, embed)
 
         value = await view.send()
-
         if value is None:
             await ctx.send(_(ctx, "Reschedule timed out."))
         elif value:
             query.remind_date = date
             query.save()
             await ctx.send(_(ctx, "Reminder rescheduled."))
+            await guild_log.debug(
+                ctx.author,
+                ctx.channel,
+                f"Reminder #{idx} rescheduled to {datetime_str}.",
+            )
         else:
             await ctx.send(_(ctx, "Rescheduling aborted."))
 
     @check.acl2(check.ACLevel.EVERYONE)
-    @reminder_.command(name="delete", aliases=["remove"])
+    @reminder_.command(name="delete", aliases=["remove", "cancel"])
     async def reminder_delete(self, ctx, idx: int):
         """Delete reminder
 
@@ -468,7 +479,7 @@ class Reminder(commands.Cog):
         query = ReminderItem.get_all(idx=idx)
         if not query:
             await ctx.send(
-                _(ctx, "Reminder with ID {id} does not exists.").format(id=idx)
+                _(ctx, "Reminder with ID {id} does not exist.").format(id=idx)
             )
             return
 
@@ -480,16 +491,19 @@ class Reminder(commands.Cog):
 
         embed = await self._get_embed(ctx, query)
         embed.title = _(ctx, "Do you want to delete this reminder?")
-
         view = ConfirmView(ctx, embed)
 
         value = await view.send()
-
         if value is None:
             await ctx.send(_(ctx, "Deleting timed out."))
         elif value:
             query.delete()
             await ctx.send(_(ctx, "Reminder deleted."))
+            await guild_log.debug(
+                ctx.author,
+                ctx.channel,
+                f"Reminder #{idx} cancelled.",
+            )
         else:
             await ctx.send(_(ctx, "Deleting aborted."))
 
