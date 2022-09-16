@@ -325,6 +325,54 @@ class Reminder(commands.Cog):
         query = ReminderItem.get_all(recipient=ctx.author, status=status)
         await self._send_reminder_list(ctx, query, include_reminded=False)
 
+    @check.acl2(check.ACLevel.EVERYONE)
+    @reminder_.command(name="get")
+    async def reminder_get(self, ctx, idx: int):
+        """Display reminder details."""
+        query = ReminderItem.get_all(guild=ctx.guild, idx=idx)
+        if not query:
+            await ctx.reply(
+                _(ctx, "Reminder with ID {id} does not exist.").format(id=idx)
+            )
+            return
+        item = query[0]
+        if ctx.author.id not in (item.author_id, item.recipient_id):
+            await ctx.send(
+                _(ctx, "You don't have permission to see details of this reminder.")
+            )
+            return
+
+        created_for: str = _(ctx, "Created {timestamp}").format(
+            timestamp=utils.time.format_datetime(item.origin_date)
+        )
+        if item.author_id != ctx.author.id:
+            item_author = ctx.guild.get_member(item.author_id)
+            created_for += " " + _(ctx, "by {member}").format(
+                member=getattr(item_author, "display_name", str(item.author_id))
+            )
+        else:
+            created_for += " " + _(ctx, "by you")
+        scheduled_for: str = _(ctx, "Scheduled for **{timestamp}**").format(
+            timestamp=utils.time.format_datetime(item.remind_date)
+        )
+        if item.recipient_id != ctx.author.id:
+            item_recipient = ctx.guild.get_member(item.recipient_id)
+            scheduled_for += " " + _(ctx, "for {member}").format(
+                member=getattr(item_recipient, "display_name", str(item.recipient_id))
+            )
+        else:
+            scheduled_for += " " + _(ctx, "for you")
+
+        embed = utils.discord.create_embed(
+            author=ctx.author,
+            title=_(ctx, "Reminder #{idx}").format(idx=idx),
+            description=f"{created_for}\n{scheduled_for}",
+        )
+        embed.add_field(name=_(ctx, "Content"), value=item.message, inline=False)
+        embed.add_field(name=_(ctx, "Status"), value=item.status.value)
+
+        await ctx.reply(embed=embed)
+
     @commands.guild_only()
     @check.acl2(check.ACLevel.MOD)
     @reminder_.command(name="all")

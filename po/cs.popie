@@ -49,6 +49,36 @@ msgstr Upomínka pro {name} byla vytvořena. Bude odeslána {date}
 msgid Invalid status. Allowed: {status}
 msgstr Neplatný status. Povolené: {status}
 
+msgid Reminder with ID {id} does not exist.
+msgstr Upomínka s ID {id} neexistuje.
+
+msgid You don't have permission to see details of this reminder.
+msgstr Nemáš oprávnění tuto upomínku zobrazit.
+
+msgid Created {timestamp}
+msgstr Vytvořeno {timestamp}
+
+msgid by {member}
+msgstr uživatelem {member}
+
+msgid by you
+msgstr tebou
+
+msgid Scheduled for **{timestamp}**
+msgstr Naplánováno na **{timestamp}**
+
+msgid for {member}
+msgstr pro {member}
+
+msgid for you
+msgstr pro tebe
+
+msgid Reminder #{idx}
+msgstr Upomínka #{idx}
+
+msgid Content
+msgstr Obsah
+
 msgid Reminder with ID {id} does not exists.
 msgstr Upomínka s ID {id} neexistuje.
 

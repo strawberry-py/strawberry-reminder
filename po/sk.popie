@@ -49,6 +49,36 @@ msgstr Pripomienka pre {name} vytvorená. Bude odoslaná: {date}
 msgid Invalid status. Allowed: {status}
 msgstr Neplatný status. Povolené: {status}
 
+msgid Reminder with ID {id} does not exist.
+msgstr
+
+msgid You don't have permission to see details of this reminder.
+msgstr
+
+msgid Created {timestamp}
+msgstr
+
+msgid by {member}
+msgstr
+
+msgid by you
+msgstr
+
+msgid Scheduled for **{timestamp}**
+msgstr
+
+msgid for {member}
+msgstr
+
+msgid for you
+msgstr
+
+msgid Reminder #{idx}
+msgstr
+
+msgid Content
+msgstr
+
 msgid Reminder with ID {id} does not exists.
 msgstr Pripomienka s ID {id} neexistuje.
 
