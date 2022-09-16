@@ -522,6 +522,10 @@ class Reminder(commands.Cog):
             _(ctx, "**{count}** reminders have been deleted.").format(count=count)
         )
 
+        await guild_log.debug(
+            ctx.author, ctx.channel, f"{count} old reminders have been deleted."
+        )
+
 
 class ReminderDummy:
     pass
