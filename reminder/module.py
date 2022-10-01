@@ -458,6 +458,7 @@ class Reminder(commands.Cog):
             await ctx.send(_(ctx, "Reschedule timed out."))
         elif value:
             query.remind_date = date
+            query.status = ReminderStatus.WAITING
             query.save()
             await ctx.send(_(ctx, "Reminder rescheduled."))
             await guild_log.debug(
