@@ -9,7 +9,7 @@ from pie.utils import ConfirmView
 from .database import CountdownItem
 from pie import check, i18n, logger, utils
 
-_ = i18n.Translator("modules/fun").translate
+_ = i18n.Translator("modules/reminder").translate
 bot_log = logger.Bot.logger()
 guild_log = logger.Guild.logger()
 
@@ -97,7 +97,7 @@ class Countdown(commands.Cog):
     @check.acl2(check.ACLevel.MEMBER)
     @countdown_.command(name="set")
     async def countdown_set(
-        self, ctx: commands.Context, name: str, datetime_str: str, text: Optional[str]
+        self, ctx: commands.Context, name: str, datetime_str: str, *, text: Optional[str]
     ):
         """Set new countdown.
 
