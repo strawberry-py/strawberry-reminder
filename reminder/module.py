@@ -446,6 +446,11 @@ class Reminder(commands.Cog):
 
         embed = await self._get_embed(ctx, query)
         embed.add_field(
+            name=_(ctx, "Original time"),
+            value=utils.time.format_datetime(query.remind_date),
+            inline=False,
+        )
+        embed.add_field(
             name=_(ctx, "New time"),
             value=print_date,
             inline=False,
