@@ -192,6 +192,7 @@ class Reminder(commands.Cog):
 
         Args:
             datetime_str: Datetime string (preferably quoted).
+            format: DD-MM-YY HH:MM:SS
             text: Optional message to remind.
         """
         text = await self._process_text(ctx, text)
