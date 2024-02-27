@@ -144,7 +144,8 @@ class Reminder(commands.Cog):
             reminder.remind_date = item.remind_date.strftime("%Y-%m-%d %H:%M")
             reminder.status = item.status.name
             reminder.message = item.message
-            if len(reminder.message) > 30:
+
+            if reminder.message and len(reminder.message) > 30:
                 reminder.message = reminder.message[:29] + "\N{HORIZONTAL ELLIPSIS}"
 
             reminders.append(reminder)
