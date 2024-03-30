@@ -220,8 +220,6 @@ class Reminder(commands.Cog):
             remind_date=date,
         )
 
-        date = utils.time.format_datetime(date)
-
         await bot_log.debug(
             ctx.author,
             ctx.channel,
