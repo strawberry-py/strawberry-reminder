@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import dateutil.parser
 import discord
@@ -11,7 +11,7 @@ from pie import check, i18n, logger, utils
 from pie.utils.objects import ConfirmView
 
 from .database import ReminderItem, ReminderStatus
-from .objects import RemindmeModal
+from .objects import RemindModal
 
 _ = i18n.Translator("modules/reminder").translate
 bot_log = logger.Bot.logger()
@@ -187,143 +187,88 @@ class Reminder(commands.Cog):
     async def remindme_menu_handler(
         self, itx: discord.Interaction, message: discord.Message
     ):
-        remindme_modal = RemindmeModal(
+        remind_modal = RemindModal(
             self.bot,
             title=_(itx, "Remind me this message"),
             label=_(itx, "Date / time:"),
+            recipient=itx.user,
             message=message,
         )
-        await itx.response.send_modal(remindme_modal)
+        await itx.response.send_modal(remind_modal)
 
     # COMMANDS
 
-    @commands.cooldown(rate=5, per=20.0, type=commands.BucketType.user)
     @check.acl2(check.ACLevel.EVERYONE)
-    @commands.command()
+    @app_commands.command(name="remindme")
     async def remindme(
-        self, ctx: commands.Context, datetime_str: str, *, text: Optional[str]
+        self,
+        itx: discord.Interaction,
     ):
-        """Create reminder for you.
-
-        Args:
-            datetime_str: Datetime string (preferably quoted).
-            format: DD-MM-YY HH:MM:SS
-            text: Optional message to remind.
-        """
-        text = utils.text.shorten(text, 1024)
-
-        try:
-            date = utils.time.parse_datetime(datetime_str)
-        except dateutil.parser.ParserError:
-            await ctx.reply(
-                utils.time.get_datetime_docs(ctx)
-                + "\n"
-                + _(
-                    ctx,
-                    "I don't know how to parse `{datetime_str}`, please try again.",
-                ).format(datetime_str=datetime_str)
-            )
-            return
-
-        if date < datetime.now():
-            await ctx.reply(
-                _(
-                    ctx,
-                    "Can't use {datetime_str} as time must be in future.",
-                ).format(datetime_str=datetime_str)
-            )
-            return
-
-        item = ReminderItem.add(
-            author=ctx.author,
-            recipient=ctx.author,
-            permalink=ctx.message.jump_url,
-            message=text,
-            origin_date=ctx.message.created_at,
-            remind_date=date,
+        """Create reminder for you."""
+        remind_modal = RemindModal(
+            self.bot,
+            title=_(itx, "Remind me this message"),
+            label=_(itx, "Date / time:"),
+            recipient=itx.user,
         )
-
-        await bot_log.debug(
-            ctx.author,
-            ctx.channel,
-            f"Reminder #{item.idx} created for {ctx.author.name} "
-            f"to be sent on {item.remind_date}.",
-        )
-
-        await ctx.message.add_reaction("✅")
-        await ctx.message.author.send(
-            _(ctx, "Reminder #{idx} created. It will be sent on **{date}**.").format(
-                idx=item.idx, date=utils.time.format_datetime(item.remind_date)
-            )
-        )
+        await itx.response.send_modal(remind_modal)
 
     @commands.guild_only()
-    @commands.cooldown(rate=5, per=20.0, type=commands.BucketType.user)
+    @app_commands.command(name="remind", guild_only=True)
     @check.acl2(check.ACLevel.MEMBER)
     @commands.command()
     async def remind(
-        self, ctx, member: discord.Member, datetime_str: str, *, text: Optional[str]
+        self,
+        itx: discord.Interaction,
+        member: discord.Member,
+        message_url: Optional[str] = None,
     ):
         """Create reminder for another user.
 
         Args:
             member: Member to remind.
-            datetime_str: Datetime string (preferably quoted).
-            text: Optional message to remind.
+            message_url: Optional message URL to remind.
         """
-        text = utils.text.shorten(text, 1024)
-
-        try:
-            date = utils.time.parse_datetime(datetime_str)
-        except dateutil.parser.ParserError:
-            await ctx.reply(
-                utils.time.get_datetime_docs(ctx)
-                + "\n"
-                + _(
-                    ctx,
-                    "I don't know how to parse `{datetime_str}`, please try again.",
-                ).format(datetime_str=datetime_str)
+        message: discord.Message
+        if message_url:
+            split: Tuple[int, int, int] = utils.discord.split_message_url(
+                self.bot, message_url
             )
-            return
+            if not split:
+                await itx.response.send_message(
+                    _(itx, "Incorrect message URL!"), ephemeral=True
+                )
+                return
+            guild_id, channel_id, message_id = split
+            if guild_id != itx.guild.id:
+                await itx.response.send_message(
+                    _(
+                        itx,
+                        "The message must be on the same server as the reminded user!",
+                    )
+                )
+                return
 
-        if date < datetime.now():
-            await ctx.reply(
-                _(
-                    ctx,
-                    "Can't use {datetime_str} as time must be in future.",
-                ).format(datetime_str=datetime_str)
+            message = utils.discord.get_message(
+                bot=self.bot,
+                guild_id=guild_id,
+                channel_id=channel_id,
+                message_id=message_id,
             )
-            return
+            if not message:
+                await itx.response.send_message(
+                    _(itx, "Message not found!"), ephemeral=True
+                )
+                return
 
-        item = ReminderItem.add(
-            author=ctx.author,
+        remind_modal = RemindModal(
+            self.bot,
+            title=_(itx, "Remind {member} this message").format(member=member.nick),
+            label=_(itx, "Date / time:"),
             recipient=member,
-            permalink=ctx.message.jump_url,
-            message=text,
-            origin_date=ctx.message.created_at,
-            remind_date=date,
+            message=message,
         )
-
-        date = utils.time.format_datetime(date)
-
-        await guild_log.debug(
-            ctx.author,
-            ctx.channel,
-            f"Reminder #{item.idx} created for {member.name} "
-            f"to be sent on {item.remind_date}.",
-        )
-
-        await ctx.message.add_reaction("✅")
-        await ctx.message.author.send(
-            _(
-                ctx,
-                "Reminder #{idx} created for {name}. It will be sent on **{date}**.",
-            ).format(
-                idx=item.idx,
-                name=member.display_name,
-                date=utils.time.format_datetime(item.remind_date),
-            )
-        )
+        await itx.response.send_modal(remind_modal)
 
     @check.acl2(check.ACLevel.EVERYONE)
     @commands.group(name="reminder")

@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Union
 
 import dateutil
 import discord
@@ -13,21 +12,21 @@ _ = i18n.Translator("modules/reminder").translate
 bot_log = logger.Bot.logger()
 
 
-class RemindmeModal(discord.ui.Modal):
+class RemindModal(discord.ui.Modal):
     def __init__(
         self,
         bot,
         title: str,
         label: str,
-        content: str = None,
+        recipient: discord.Member,
         message: discord.Message = None,
     ) -> None:
         super().__init__(title=title, custom_id="remindme_modal", timeout=900)
 
         self.bot = bot
         self.title = title
-        self.content = content
         self.message = message
+        self.recipient = recipient
         self.datetime_input = discord.ui.TextInput(
             label=label,
             custom_id=self.custom_id + "_datetime",
@@ -80,7 +79,7 @@ class RemindmeModal(discord.ui.Modal):
 
         item = ReminderItem.add(
             author=itx.user,
-            recipient=itx.user,
+            recipient=self.recipient,
             permalink=self.message.jump_url if message else "",
             message=message,
             origin_date=datetime.now(),

@@ -88,14 +88,17 @@ msgstr Pripomeň mi túto správu
 msgid Date / time:
 msgstr Dátum / čas:
 
-msgid I don't know how to parse `{datetime_str}`, please try again.
-msgstr Neviem ako prečítať `{datetime_str}`, skúste znovu.
+msgid Incorrect message URL!
+msgstr Nesprávna adresa URL správy!
 
-msgid Reminder #{idx} created. It will be sent on **{date}**.
-msgstr Pripomienka #{idx} bola vytvorená. Bude odoslaná **{date}**.
+msgid The message must be on the same server as the reminded user!
+msgstr Správa musí byť na rovnakom serveri ako používateľ!
 
-msgid Reminder #{idx} created for {name}. It will be sent on **{date}**.
-msgstr Pripomienka #{idx} bola vytvorená pre užívateľa {name}. Bude odoslaná **{date}**.
+msgid Message not found!
+msgstr Správa nebola nájdená!
+
+msgid Remind {member} this message
+msgstr Pripomeň {member} túto správu
 
 msgid Invalid status. Allowed: {status}
 msgstr Neplatný status. Povolené: {status}
@@ -133,6 +136,9 @@ msgstr
 msgid Can't reschedule other's reminders.
 msgstr Nemôžeš preplánovať cudzie pripomienky.
 
+msgid I don't know how to parse `{datetime_str}`, please try again.
+msgstr Neviem ako prečítať `{datetime_str}`, skúste znovu.
+
 msgid Original time
 msgstr
 
@@ -165,3 +171,6 @@ msgstr
 
 msgid **{count}** reminders have been deleted.
 msgstr
+
+msgid Reminder #{idx} created. It will be sent on **{date}**.
+msgstr Pripomienka #{idx} bola vytvorená. Bude odoslaná **{date}**.
