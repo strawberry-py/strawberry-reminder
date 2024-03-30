@@ -19,7 +19,6 @@ class RemindmeModal(discord.ui.Modal):
         bot,
         title: str,
         label: str,
-        channel: Union[discord.TextChannel, discord.Thread] = None,
         content: str = None,
         message: discord.Message = None,
     ) -> None:
