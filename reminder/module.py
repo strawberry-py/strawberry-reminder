@@ -3,6 +3,7 @@ from typing import List, Optional
 
 import dateutil.parser
 import discord
+from discord import app_commands
 from discord.errors import Forbidden, HTTPException
 from discord.ext import commands, tasks
 
@@ -10,6 +11,7 @@ from pie import check, i18n, logger, utils
 from pie.utils.objects import ConfirmView
 
 from .database import ReminderItem, ReminderStatus
+from .objects import RemindmeModal
 
 _ = i18n.Translator("modules/reminder").translate
 bot_log = logger.Bot.logger()
@@ -20,6 +22,12 @@ class Reminder(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.reminder.start()
+
+        self.remindme_menu = app_commands.ContextMenu(
+            name="Remind me", callback=self.remindme_menu_handler
+        )
+
+        self.bot.tree.add_command(self.remindme_menu)
 
     def cog_unload(self):
         self.reminder.cancel()
@@ -172,6 +180,20 @@ class Reminder(commands.Cog):
                 pass
 
         return user
+
+    # CONTEXT MENU
+
+    @check.acl2(check.ACLevel.EVERYONE)
+    async def remindme_menu_handler(
+        self, itx: discord.Interaction, message: discord.Message
+    ):
+        remindme_modal = RemindmeModal(
+            self.bot,
+            title=_(itx, "Remind me this message"),
+            label=_(itx, "Date / time:"),
+            message=message,
+        )
+        await itx.response.send_modal(remindme_modal)
 
     # COMMANDS
 
