@@ -127,7 +127,9 @@ class Countdown(commands.Cog):
             date = utils.time.parse_datetime(datetime_str)
         except dateutil.parser.ParserError:
             await ctx.reply(
-                _(
+                utils.time.get_datetime_docs(ctx)
+                + "\n"
+                + _(
                     ctx,
                     "I don't know how to parse `{datetime_str}`, pleasy try again.",
                 ).format(datetime_str=datetime_str)
@@ -135,7 +137,12 @@ class Countdown(commands.Cog):
             return
 
         if date < datetime.now():
-            await ctx.reply(_(ctx, "Time must be in future."))
+            await ctx.reply(
+                _(
+                    ctx,
+                    "Can't use {datetime_str} as time must be in future.",
+                ).format(datetime_str=datetime_str)
+            )
             return
 
         item = CountdownItem.add(

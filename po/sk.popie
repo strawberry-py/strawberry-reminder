@@ -31,8 +31,8 @@ msgstr
 msgid I don't know how to parse `{datetime_str}`, pleasy try again.
 msgstr
 
-msgid Time must be in future.
-msgstr Čas musí byť v budúcnosti.
+msgid Can't use {datetime_str} as time must be in future.
+msgstr Nie je možné použiť {datetime_str}, pretože čas musí byť v budúcnosti.
 
 msgid Countdown '{name}' to **{date}** created. Remaining time is {time}.
 msgstr
@@ -81,6 +81,12 @@ msgstr Status
 
 msgid Message text
 msgstr Obsah správy
+
+msgid Remind me this message
+msgstr Pripomeň mi túto správu
+
+msgid Date / time:
+msgstr Dátum / čas:
 
 msgid I don't know how to parse `{datetime_str}`, please try again.
 msgstr Neviem ako prečítať `{datetime_str}`, skúste znovu.

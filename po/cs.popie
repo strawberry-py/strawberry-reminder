@@ -31,8 +31,8 @@ msgstr Odpočet '{name}' již existuje.
 msgid I don't know how to parse `{datetime_str}`, pleasy try again.
 msgstr
 
-msgid Time must be in future.
-msgstr Čas musí být v budoucnosti.
+msgid Can't use {datetime_str} as time must be in future.
+msgstr Nelze použít {datetime_str}, protože Čas musí být v budoucnosti.
 
 msgid Countdown '{name}' to **{date}** created. Remaining time is {time}.
 msgstr Odpočet '{name}' do **{date}** vytvořen. Zbývající čas je {time}.
@@ -81,6 +81,12 @@ msgstr Status
 
 msgid Message text
 msgstr Obsah zprávy
+
+msgid Remind me this message
+msgstr Připomeň mi tuto zprávu.
+
+msgid Date / time:
+msgstr Datum / čas:
 
 msgid I don't know how to parse `{datetime_str}`, please try again.
 msgstr Nevím jak přečíst `{datetime_str}`, zkus to znovu.

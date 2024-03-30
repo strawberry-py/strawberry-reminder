@@ -84,7 +84,6 @@ class Reminder(commands.Cog):
             ),
         )
 
-
     async def _get_embed(self, utx, query):
         reminder_user = await self._get_member(query.author_id, query.guild_id)
 
@@ -195,7 +194,9 @@ class Reminder(commands.Cog):
             date = utils.time.parse_datetime(datetime_str)
         except dateutil.parser.ParserError:
             await ctx.reply(
-                _(
+                utils.time.get_datetime_docs(ctx)
+                + "\n"
+                + _(
                     ctx,
                     "I don't know how to parse `{datetime_str}`, please try again.",
                 ).format(datetime_str=datetime_str)
@@ -206,7 +207,7 @@ class Reminder(commands.Cog):
             await ctx.reply(
                 _(
                     ctx,
-                    "Time must be in future.",
+                    "Can't use {datetime_str} as time must be in future.",
                 ).format(datetime_str=datetime_str)
             )
             return
@@ -254,7 +255,9 @@ class Reminder(commands.Cog):
             date = utils.time.parse_datetime(datetime_str)
         except dateutil.parser.ParserError:
             await ctx.reply(
-                _(
+                utils.time.get_datetime_docs(ctx)
+                + "\n"
+                + _(
                     ctx,
                     "I don't know how to parse `{datetime_str}`, please try again.",
                 ).format(datetime_str=datetime_str)
@@ -265,7 +268,7 @@ class Reminder(commands.Cog):
             await ctx.reply(
                 _(
                     ctx,
-                    "Time must be in future.",
+                    "Can't use {datetime_str} as time must be in future.",
                 ).format(datetime_str=datetime_str)
             )
             return
@@ -424,7 +427,9 @@ class Reminder(commands.Cog):
             date = utils.time.parse_datetime(datetime_str)
         except dateutil.parser.ParserError:
             await ctx.reply(
-                _(
+                utils.time.get_datetime_docs(ctx)
+                + "\n"
+                + _(
                     ctx,
                     "I don't know how to parse `{datetime_str}`, please try again.",
                 ).format(datetime_str=datetime_str)
@@ -432,7 +437,11 @@ class Reminder(commands.Cog):
             return
 
         if date < datetime.now():
-            await ctx.send(_(ctx, "Time must be in future."))
+            await ctx.send(
+                _(ctx, "Can't use {datetime_str} as time must be in future.").format(
+                    datetime_str=datetime_str
+                )
+            )
             return
 
         print_date = utils.time.format_datetime(date)
