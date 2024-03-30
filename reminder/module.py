@@ -84,12 +84,6 @@ class Reminder(commands.Cog):
             ),
         )
 
-    async def _process_text(self, ctx: commands.Context, text: Optional[str]):
-        if text is not None and len(text) > 1024:
-            text = text[:1024]
-            text = text[:-3] + "```" if text.count("```") % 2 != 0 else text
-
-        return text
 
     async def _get_embed(self, utx, query):
         reminder_user = await self._get_member(query.author_id, query.guild_id)
@@ -195,7 +189,7 @@ class Reminder(commands.Cog):
             format: DD-MM-YY HH:MM:SS
             text: Optional message to remind.
         """
-        text = await self._process_text(ctx, text)
+        text = utils.text.shorten(text, 1024)
 
         try:
             date = utils.time.parse_datetime(datetime_str)
@@ -256,7 +250,7 @@ class Reminder(commands.Cog):
             datetime_str: Datetime string (preferably quoted).
             text: Optional message to remind.
         """
-        text = await self._process_text(ctx, text)
+        text = utils.text.shorten(text, 1024)
 
         try:
             date = utils.time.parse_datetime(datetime_str)
