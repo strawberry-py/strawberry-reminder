@@ -265,8 +265,8 @@ class Reminder(commands.Cog):
         await self._send_reminder_list(itx, query)
 
     @check.acl2(check.ACLevel.EVERYONE)
-    @reminder.command(name="get", description="Show reminder details.")
-    async def reminder_get(self, itx: discord.Interaction, idx: int):
+    @reminder.command(name="info", description="Show reminder details.")
+    async def reminder_info(self, itx: discord.Interaction, idx: int):
         query = ReminderItem.get_all(guild=itx.guild, idx=idx)
         if not query:
             await itx.response.send_message(
