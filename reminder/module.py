@@ -236,10 +236,10 @@ class Reminder(commands.Cog):
     @reminder.command(name="list", description="List reminders for you.")
     @app_commands.choices(
         status=[
+            app_commands.Choice(name="ALL", value="ALL"),
             app_commands.Choice(name="WAITING", value="WAITING"),
             app_commands.Choice(name="REMINDED", value="REMINDED"),
             app_commands.Choice(name="FAILED", value="FAILED"),
-            app_commands.Choice(name="ALL", value="ALL"),
         ]
     )
     async def reminder_list(
@@ -319,10 +319,10 @@ class Reminder(commands.Cog):
     @reminder.command(name="all", description="List all guild reminders")
     @app_commands.choices(
         status=[
+            app_commands.Choice(name="ALL", value="ALL"),
             app_commands.Choice(name="WAITING", value="WAITING"),
             app_commands.Choice(name="REMINDED", value="REMINDED"),
             app_commands.Choice(name="FAILED", value="FAILED"),
-            app_commands.Choice(name="ALL", value="ALL"),
         ]
     )
     async def reminder_app(
