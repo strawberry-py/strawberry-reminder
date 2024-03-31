@@ -181,18 +181,19 @@ class Reminder(commands.Cog):
         name="remind", description="Create reminder for another user."
     )
     @app_commands.describe(
-        member="Member to remind.", message_url="Optional message URL to remind."
+        member="Member to remind.",
+        discord_message_url="Optional Discord message URL to remind.",
     )
     async def remind(
         self,
         itx: discord.Interaction,
         member: discord.Member,
-        message_url: Optional[str] = None,
+        discord_message_url: Optional[str] = None,
     ):
         message: discord.Message = None
-        if message_url:
+        if discord_message_url:
             split: Tuple[int, int, int] = utils.discord.split_message_url(
-                self.bot, message_url
+                self.bot, discord_message_url
             )
             if not split:
                 await itx.response.send_message(
