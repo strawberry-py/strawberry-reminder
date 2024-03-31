@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
-import dateutil.parser
 import discord
 from discord import app_commands
 from discord.errors import Forbidden, HTTPException
@@ -12,6 +11,7 @@ from pie.utils.objects import ConfirmView
 
 from .database import ReminderItem, ReminderStatus
 from .objects import RemindModal
+from .utils import get_member, get_reminder_embed
 
 _ = i18n.Translator("modules/reminder").translate
 bot_log = logger.Bot.logger()
@@ -21,7 +21,7 @@ guild_log = logger.Guild.logger()
 class Reminder(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.reminder.start()
+        self.reminder_loop.start()
 
         self.remindme_menu = app_commands.ContextMenu(
             name="Remind me", callback=self.remindme_menu_handler
@@ -29,13 +29,17 @@ class Reminder(commands.Cog):
 
         self.bot.tree.add_command(self.remindme_menu)
 
+    reminder = app_commands.Group(
+        name="reminder", description="Reminder management commands."
+    )
+
     def cog_unload(self):
-        self.reminder.cancel()
+        self.reminder_loop.cancel()
 
     # LOOPS
 
     @tasks.loop(seconds=30)
-    async def reminder(self):
+    async def reminder_loop(self):
         max_remind_time = datetime.now() + timedelta(seconds=30)
 
         items = ReminderItem.get_all(
@@ -46,14 +50,14 @@ class Reminder(commands.Cog):
             for item in items:
                 await self._remind(item)
 
-    @reminder.before_loop
+    @reminder_loop.before_loop
     async def before_reminder(self):
         await self.bot.wait_until_ready()
 
     # HELPER FUNCTIONS
 
     async def _remind(self, item: ReminderItem):
-        reminded_user = await self._get_member(item.recipient_id, item.guild_id)
+        reminded_user = await get_member(self.bot, item.recipient_id, item.guild_id)
 
         if reminded_user is None:
             item.status = ReminderStatus.FAILED
@@ -67,7 +71,7 @@ class Reminder(commands.Cog):
 
         utx = i18n.TranslationContext(item.guild_id, item.recipient_id)
 
-        embed = await self._get_embed(utx, item)
+        embed = await get_reminder_embed(self.bot, utx, item)
 
         try:
             message = await reminded_user.send(embed=embed)
@@ -92,49 +96,20 @@ class Reminder(commands.Cog):
             ),
         )
 
-    async def _get_embed(self, utx, query):
-        reminder_user = await self._get_member(query.author_id, query.guild_id)
-
-        if reminder_user is None:
-            reminder_user_name = "_({unknown})_".format(unknown=_(utx, "Unknown user"))
-        else:
-            reminder_user_name = discord.utils.escape_markdown(
-                reminder_user.display_name
-            )
-
-        embed = utils.discord.create_embed(
-            author=reminder_user,
-            title=_(utx, "Reminder"),
-        )
-
-        if query.author_id != query.recipient_id:
-            embed.add_field(
-                name=_(utx, "Reminded by"),
-                value=reminder_user_name,
-                inline=True,
-            )
-        if query.message != "":
-            embed.add_field(
-                name=_(utx, "Message"),
-                value=query.message,
-                inline=False,
-            )
-        embed.add_field(name=_(utx, "URL"), value=query.permalink, inline=True)
-
-        return embed
-
-    async def _send_reminder_list(self, ctx, query, *, include_reminded: bool = True):
+    async def _send_reminder_list(
+        self, itx: discord.Interaction, query, *, include_reminded: bool = True
+    ):
         reminders = []
 
         for item in query:
-            author = await self._get_member(item.author_id, item.guild_id)
-            remind = await self._get_member(item.recipient_id, item.guild_id)
+            author = await get_member(self.bot, item.author_id, item.guild_id)
+            remind = await get_member(self.bot, item.recipient_id, item.guild_id)
 
             author_name = (
-                author.display_name if author is not None else _(ctx, "(unknown)")
+                author.display_name if author is not None else _(itx, "(unknown)")
             )
             remind_name = (
-                remind.display_name if remind is not None else _(ctx, "(unknown)")
+                remind.display_name if remind is not None else _(itx, "(unknown)")
             )
 
             reminder = ReminderDummy()
@@ -151,12 +126,12 @@ class Reminder(commands.Cog):
             reminders.append(reminder)
 
         table_columns: dict = {
-            "idx": _(ctx, "ID"),
-            "author_name": _(ctx, "Author"),
-            "remind_name": _(ctx, "Reminded"),
-            "remind_date": _(ctx, "Remind date"),
-            "status": _(ctx, "Status"),
-            "message": _(ctx, "Message text"),
+            "idx": _(itx, "ID"),
+            "author_name": _(itx, "Author"),
+            "remind_name": _(itx, "Reminded"),
+            "remind_date": _(itx, "Remind date"),
+            "status": _(itx, "Status"),
+            "message": _(itx, "Message text"),
         }
         if not include_reminded:
             del table_columns["remind_name"]
@@ -164,22 +139,9 @@ class Reminder(commands.Cog):
         table_pages: List[str] = utils.text.create_table(reminders[::-1], table_columns)
 
         for table_page in table_pages:
-            await ctx.send("```" + table_page.replace("`", "'") + "```")
-
-    async def _get_member(self, user_id: int, guild_id: int = 0):
-        user = None
-
-        if guild_id > 0:
-            guild = self.bot.get_guild(guild_id)
-            user = guild.get_member(user_id)
-
-        if user is None:
-            try:
-                user = await self.bot.fetch_user(user_id)
-            except discord.errors.NotFound:
-                pass
-
-        return user
+            await itx.response.send_message(
+                "```" + table_page.replace("`", "'") + "```", ephemeral=True
+            )
 
     # CONTEXT MENU
 
@@ -213,22 +175,20 @@ class Reminder(commands.Cog):
         )
         await itx.response.send_modal(remind_modal)
 
-    @commands.guild_only()
-    @app_commands.command(name="remind", guild_only=True)
     @check.acl2(check.ACLevel.MEMBER)
-    @commands.command()
+    @app_commands.guild_only()
+    @app_commands.command(
+        name="remind", description="Create reminder for another user."
+    )
+    @app_commands.describe(
+        member="Member to remind.", message_url="Optional message URL to remind."
+    )
     async def remind(
         self,
         itx: discord.Interaction,
         member: discord.Member,
         message_url: Optional[str] = None,
     ):
-        """Create reminder for another user.
-
-        Args:
-            member: Member to remind.
-            message_url: Optional message URL to remind.
-        """
         message: discord.Message
         if message_url:
             split: Tuple[int, int, int] = utils.discord.split_message_url(
@@ -245,13 +205,14 @@ class Reminder(commands.Cog):
                     _(
                         itx,
                         "The message must be on the same server as the reminded user!",
-                    )
+                    ),
+                    ephemeral=True,
                 )
                 return
 
-            message = utils.discord.get_message(
+            message = await utils.discord.get_message(
                 bot=self.bot,
-                guild_id=guild_id,
+                guild_or_user_id=guild_id,
                 channel_id=channel_id,
                 message_id=message_id,
             )
@@ -271,234 +232,209 @@ class Reminder(commands.Cog):
         await itx.response.send_modal(remind_modal)
 
     @check.acl2(check.ACLevel.EVERYONE)
-    @commands.group(name="reminder")
-    async def reminder_(self, ctx):
-        await utils.discord.send_help(ctx)
+    @reminder.command(name="list", description="List reminders for you.")
+    @app_commands.choices(
+        status=[
+            app_commands.Choice(name="WAITING", value="WAITING"),
+            app_commands.Choice(name="REMINDED", value="REMINDED"),
+            app_commands.Choice(name="FAILED", value="FAILED"),
+            app_commands.Choice(name="ALL", value="ALL"),
+        ]
+    )
+    async def reminder_list(
+        self, itx: discord.Interaction, status: app_commands.Choice[str]
+    ):
+        query: List[ReminderItem]
 
-    @check.acl2(check.ACLevel.EVERYONE)
-    @reminder_.command(name="list")
-    async def reminder_list(self, ctx, status: str = "WAITING"):
-        """List reminders for you.
-
-        Args:
-            status: Reminder status (default: WAITING)
-        """
-
-        try:
-            status = ReminderStatus[status.upper()]
-        except KeyError:
-            await ctx.send(
-                _(ctx, "Invalid status. Allowed: {status}").format(
-                    status=ReminderStatus.str_list()
+        if status.value == "ALL":
+            query = ReminderItem.get_all(recipient=itx.user)
+        else:
+            try:
+                rem_status: ReminderStatus = ReminderStatus[status.value]
+            except KeyError:
+                await itx.response.send_message(
+                    _(itx, "Invalid status. Allowed: {status}").format(
+                        status=ReminderStatus.str_list() + ", ALL"
+                    ),
+                    ephemeral=True,
                 )
-            )
-            return
+                return
 
-        query = ReminderItem.get_all(recipient=ctx.author, status=status)
-        await self._send_reminder_list(ctx, query, include_reminded=False)
+            query = ReminderItem.get_all(recipient=itx.user, status=rem_status)
+
+        await self._send_reminder_list(itx, query)
 
     @check.acl2(check.ACLevel.EVERYONE)
-    @reminder_.command(name="get")
-    async def reminder_get(self, ctx, idx: int):
-        """Display reminder details."""
-        query = ReminderItem.get_all(guild=ctx.guild, idx=idx)
+    @reminder.command(name="get", description="Show reminder details.")
+    async def reminder_get(self, itx: discord.Interaction, idx: int):
+        query = ReminderItem.get_all(guild=itx.guild, idx=idx)
         if not query:
-            await ctx.reply(
-                _(ctx, "Reminder with ID {id} does not exist.").format(id=idx)
+            await itx.response.send_message(
+                _(itx, "Reminder with ID {id} does not exist.").format(id=idx),
+                ephemeral=True,
             )
             return
         item = query[0]
-        if ctx.author.id not in (item.author_id, item.recipient_id):
-            await ctx.send(
-                _(ctx, "You don't have permission to see details of this reminder.")
+        if itx.user.id not in (item.author_id, item.recipient_id):
+            await itx.response.send_message(
+                _(itx, "You don't have permission to see details of this reminder."),
+                ephemeral=True,
             )
             return
 
-        created_for: str = _(ctx, "Created {timestamp}").format(
+        created_for: str = _(itx, "Created {timestamp}").format(
             timestamp=utils.time.format_datetime(item.origin_date)
         )
-        if item.author_id != ctx.author.id:
-            item_author = ctx.guild.get_member(item.author_id)
-            created_for += " " + _(ctx, "by {member}").format(
+        if item.author_id != itx.user.id:
+            item_author = itx.guild.get_member(item.author_id)
+            created_for += " " + _(itx, "by {member}").format(
                 member=getattr(item_author, "display_name", str(item.author_id))
             )
         else:
-            created_for += " " + _(ctx, "by you")
-        scheduled_for: str = _(ctx, "Scheduled for **{timestamp}**").format(
+            created_for += " " + _(itx, "by you")
+        scheduled_for: str = _(itx, "Scheduled for **{timestamp}**").format(
             timestamp=utils.time.format_datetime(item.remind_date)
         )
-        if item.recipient_id != ctx.author.id:
-            item_recipient = ctx.guild.get_member(item.recipient_id)
-            scheduled_for += " " + _(ctx, "for {member}").format(
+        if item.recipient_id != itx.user.id:
+            item_recipient = itx.guild.get_member(item.recipient_id)
+            scheduled_for += " " + _(itx, "for {member}").format(
                 member=getattr(item_recipient, "display_name", str(item.recipient_id))
             )
         else:
-            scheduled_for += " " + _(ctx, "for you")
+            scheduled_for += " " + _(itx, "for you")
 
         embed = utils.discord.create_embed(
-            author=ctx.author,
-            title=_(ctx, "Reminder #{idx}").format(idx=idx),
+            author=itx.user,
+            title=_(itx, "Reminder #{idx}").format(idx=idx),
             description=f"{created_for}\n{scheduled_for}",
         )
-        embed.add_field(name=_(ctx, "Content"), value=item.message, inline=False)
-        embed.add_field(name=_(ctx, "Status"), value=item.status.value)
+        embed.add_field(name=_(itx, "Content"), value=item.message, inline=False)
+        embed.add_field(name=_(itx, "Status"), value=item.status.value)
 
-        await ctx.reply(embed=embed)
+        await itx.response.send_message(embed=embed, ephemeral=True)
 
-    @commands.guild_only()
+    @app_commands.guild_only()
     @check.acl2(check.ACLevel.MOD)
-    @reminder_.command(name="all")
-    async def reminder_all(self, ctx, status: str = "WAITING"):
-        """List all guild reminders.
+    @reminder.command(name="all", description="List all guild reminders")
+    @app_commands.choices(
+        status=[
+            app_commands.Choice(name="WAITING", value="WAITING"),
+            app_commands.Choice(name="REMINDED", value="REMINDED"),
+            app_commands.Choice(name="FAILED", value="FAILED"),
+            app_commands.Choice(name="ALL", value="ALL"),
+        ]
+    )
+    async def reminder_app(
+        self, itx: discord.Interaction, status: app_commands.Choice[str]
+    ):
+        query: List[ReminderItem]
 
-        Args:
-            status: Reminder status (default: WAITING)
-        """
-
-        try:
-            status = ReminderStatus[status.upper()]
-        except KeyError:
-            await ctx.send(
-                _(ctx, "Invalid status. Allowed: {status}").format(
-                    status=ReminderStatus.str_list()
+        if status.value == "ALL":
+            query = ReminderItem.get_all(guild=itx.guild)
+        else:
+            try:
+                rem_status: ReminderStatus = ReminderStatus[status.value]
+            except KeyError:
+                await itx.response.send_message(
+                    _(itx, "Invalid status. Allowed: {status}").format(
+                        status=ReminderStatus.str_list() + ", ALL"
+                    ),
+                    ephemeral=True,
                 )
-            )
-            return
+                return
 
-        query = ReminderItem.get_all(guild=ctx.guild, status=status)
-        await self._send_reminder_list(ctx, query)
+            query = ReminderItem.get_all(guild=itx.guild, status=rem_status)
+
+        await self._send_reminder_list(itx, query)
 
     @check.acl2(check.ACLevel.EVERYONE)
-    @reminder_.command(name="reschedule", aliases=["postpone", "delay"])
-    async def reminder_reschedule(self, ctx, idx: int, datetime_str: str):
-        """Reschedule your reminder.
-
-        Args:
-            idx: ID of reminder.
-            datetime_str: Datetime string (preferably quoted).
-        """
+    @reminder.command(name="edit", description="Reschedule your reminder.")
+    @app_commands.describe(
+        idx="Reminder ID",
+    )
+    async def edit(self, itx: discord.Interaction, idx: int):
         query = ReminderItem.get_all(idx=idx)
         if query is None:
-            await ctx.send(
-                _(ctx, "Reminder with ID {id} does not exist.").format(id=idx)
+            await itx.response.send_message(
+                _(itx, "Reminder with ID {id} does not exist.").format(id=idx),
+                ephemeral=True,
             )
             return
 
         query = query[0]
 
-        if query.recipient_id != ctx.author.id:
-            await ctx.send(_(ctx, "Can't reschedule other's reminders."))
-            return
-
-        try:
-            date = utils.time.parse_datetime(datetime_str)
-        except dateutil.parser.ParserError:
-            await ctx.reply(
-                utils.time.get_datetime_docs(ctx)
-                + "\n"
-                + _(
-                    ctx,
-                    "I don't know how to parse `{datetime_str}`, please try again.",
-                ).format(datetime_str=datetime_str)
+        if query.recipient_id != itx.user.id:
+            await itx.response.send_message(
+                _(itx, "Can't reschedule other's reminders."), ephemeral=True
             )
             return
-
-        if date < datetime.now():
-            await ctx.send(
-                _(ctx, "Can't use {datetime_str} as time must be in future.").format(
-                    datetime_str=datetime_str
-                )
-            )
-            return
-
-        print_date = utils.time.format_datetime(date)
-
-        embed = await self._get_embed(ctx, query)
-        embed.add_field(
-            name=_(ctx, "Original time"),
-            value=utils.time.format_datetime(query.remind_date),
-            inline=False,
-        )
-        embed.add_field(
-            name=_(ctx, "New time"),
-            value=print_date,
-            inline=False,
-        )
-        embed.title = _(ctx, "Do you want to reschedule this reminder?")
-        view = ConfirmView(ctx, embed)
-
-        value = await view.send()
-        if value is None:
-            await ctx.send(_(ctx, "Reschedule timed out."))
-        elif value:
-            query.remind_date = date
-            query.status = ReminderStatus.WAITING
-            query.save()
-            await ctx.send(_(ctx, "Reminder rescheduled."))
-            await guild_log.debug(
-                ctx.author,
-                ctx.channel,
-                f"Reminder #{idx} rescheduled to {datetime_str}.",
-            )
-        else:
-            await ctx.send(_(ctx, "Rescheduling aborted."))
 
     @check.acl2(check.ACLevel.EVERYONE)
-    @reminder_.command(name="delete", aliases=["remove", "cancel"])
-    async def reminder_delete(self, ctx, idx: int):
-        """Delete reminder
-
-        Args:
-            idx: ID of reminder.
-        """
+    @reminder.command(name="delete", description="Delete reminder")
+    @app_commands.describe(idx="Reminder ID")
+    async def reminder_delete(self, itx: discord.Interaction, idx: int):
         query = ReminderItem.get_all(idx=idx)
         if not query:
-            await ctx.send(
-                _(ctx, "Reminder with ID {id} does not exist.").format(id=idx)
+            await itx.response.send_message(
+                _(itx, "Reminder with ID {id} does not exist.").format(id=idx),
+                ephemeral=True,
             )
             return
 
         query = query[0]
 
-        if query.recipient_id != ctx.author.id:
-            await ctx.send(_(ctx, "Can't delete other's reminders."))
+        if query.recipient_id != itx.user.id:
+            await itx.response.send_message(
+                _(itx, "Can't delete other's reminders."), ephemeral=True
+            )
             return
 
-        embed = await self._get_embed(ctx, query)
-        embed.title = _(ctx, "Do you want to delete this reminder?")
-        view = ConfirmView(ctx, embed)
+        embed = await get_reminder_embed(self.bot, itx, query)
+        embed.title = _(itx, "Do you want to delete this reminder?")
+        view = ConfirmView(itx, embed)
 
         value = await view.send()
         if value is None:
-            await ctx.send(_(ctx, "Deleting timed out."))
+            await itx.user.send(_(itx, "Deleting timed out."), ephemeral=True)
         elif value:
             query.delete()
-            await ctx.send(_(ctx, "Reminder deleted."))
+            await view.itx.response.send_message(
+                _(itx, "Reminder deleted."), ephemeral=True
+            )
             await guild_log.debug(
-                ctx.author,
-                ctx.channel,
+                itx.user,
+                itx.channel,
                 f"Reminder #{idx} cancelled.",
             )
         else:
-            await ctx.send(_(ctx, "Deleting aborted."))
+            await view.itx.response.send_message(
+                _(itx, "Deleting aborted."), ephemeral=True
+            )
 
     @check.acl2(check.ACLevel.EVERYONE)
-    @reminder_.command(name="clean")
-    async def reminder_clean(self, ctx):
-        """Delete all your reminders that finished at least 24 hours ago."""
+    @reminder.command(
+        name="clean",
+        description="Delete all your reminders that finished at least 24 hours ago.",
+    )
+    async def reminder_clean(self, itx: discord.Interaction):
+        """"""
         before: datetime = datetime.now() - timedelta(hours=24)
-        count: int = ReminderItem.batch_delete(ctx.guild, ctx.author, before)
+        count: int = ReminderItem.batch_delete(itx.guild, itx.user, before)
 
         if not count:
-            await ctx.reply(_(ctx, "You don't have any reminders older than one day."))
+            await itx.response.send_message(
+                _(itx, "You don't have any reminders older than one day."),
+                ephemeral=True,
+            )
             return
 
-        await ctx.reply(
-            _(ctx, "**{count}** reminders have been deleted.").format(count=count)
+        await itx.response.send_message(
+            _(itx, "**{count}** reminders have been deleted.").format(count=count),
+            ephemeral=True,
         )
 
         await guild_log.debug(
-            ctx.author, ctx.channel, f"{count} old reminders have been deleted."
+            itx.user, itx.channel, f"{count} old reminders have been deleted."
         )
 
 

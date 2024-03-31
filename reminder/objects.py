@@ -4,8 +4,10 @@ import dateutil
 import discord
 
 from pie import i18n, logger, utils
+from pie.utils.objects import ConfirmView
 
-from .database import ReminderItem
+from .database import ReminderItem, ReminderStatus
+from .utils import get_reminder_embed
 
 _ = i18n.Translator("modules/reminder").translate
 
@@ -20,6 +22,7 @@ class RemindModal(discord.ui.Modal):
         label: str,
         recipient: discord.Member,
         message: discord.Message = None,
+        reminder: ReminderItem = None,
     ) -> None:
         super().__init__(title=title, custom_id="remindme_modal", timeout=900)
 
@@ -27,6 +30,7 @@ class RemindModal(discord.ui.Modal):
         self.title = title
         self.message = message
         self.recipient = recipient
+        self.reminder = reminder
         self.datetime_input = discord.ui.TextInput(
             label=label,
             custom_id=self.custom_id + "_datetime",
@@ -77,10 +81,20 @@ class RemindModal(discord.ui.Modal):
 
         message = utils.text.shorten(self.message_input.value, 1024)
 
+        if self.reminder:
+            await self._edit_reminder(itx, message, date)
+        else:
+            await self._add_reminder(itx, message, date)
+
+        self.stop()
+
+    async def _add_reminder(
+        self, itx: discord.Interaction, message: str, date: datetime
+    ) -> None:
         item = ReminderItem.add(
             author=itx.user,
             recipient=self.recipient,
-            permalink=self.message.jump_url if message else "",
+            permalink=self.message.jump_url if self.message else "",
             message=message,
             origin_date=datetime.now(),
             remind_date=date,
@@ -93,20 +107,44 @@ class RemindModal(discord.ui.Modal):
             f"to be sent on {item.remind_date}.",
         )
 
-        await itx.user.send(
-            _(itx, "Reminder #{idx} created. It will be sent on **{date}**.").format(
-                idx=item.idx, date=utils.time.format_datetime(item.remind_date)
+        response: str = _(
+            itx, "Reminder #{idx} created. It will be sent on **{date}**."
+        ).format(idx=item.idx, date=utils.time.format_datetime(item.remind_date))
+
+        await itx.user.send(response)
+
+        await itx.response.send_message(response, ephemeral=True)
+
+    async def _edit_reminder(
+        self, itx: discord.Interaction, message: str, date: datetime
+    ) -> None:
+        print_date = utils.time.format_datetime(date)
+
+        embed = await get_reminder_embed(self.bot, itx, self.reminder)
+        embed.add_field(
+            name=_(itx, "New time"),
+            value=print_date,
+            inline=False,
+        )
+        embed.title = _(itx, "Do you want to reschedule this reminder?")
+        view = ConfirmView(itx, embed)
+
+        value = await view.send()
+        if value is None:
+            await view.itx.response.send_message(_(itx, "Reschedule timed out."))
+        elif value:
+            self.reminder.remind_date = date
+            self.reminder.status = ReminderStatus.WAITING
+            self.reminder.save()
+            await view.itx.response.send_message(
+                _(itx, "Reminder rescheduled."), ephemeral=True
             )
-        )
-
-        await itx.response.send_message(
-            _(itx, "Reminder #{idx} created. It will be sent on **{date}**.").format(
-                idx=item.idx, date=utils.time.format_datetime(item.remind_date)
-            ),
-            ephemeral=True,
-        )
-
-        self.stop()
-
-    async def on_error(self, interaction: discord.Interaction, error: Exception):
-        raise error
+            await bot_log.debug(
+                itx.user,
+                itx.channel,
+                f"Reminder #{self.reminder.idx} rescheduled to {print_date}.",
+            )
+        else:
+            await view.itx.response.send_message(
+                _(itx, "Rescheduling aborted."), ephemeral=True
+            )
