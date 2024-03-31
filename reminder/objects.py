@@ -18,8 +18,8 @@ class RemindModal(discord.ui.Modal):
     def __init__(
         self,
         bot,
+        itx: discord.Interaction,
         title: str,
-        label: str,
         recipient: discord.Member,
         message: discord.Message = None,
         reminder: ReminderItem = None,
@@ -32,20 +32,24 @@ class RemindModal(discord.ui.Modal):
         self.recipient = recipient
         self.reminder = reminder
         self.datetime_input = discord.ui.TextInput(
-            label=label,
+            label=_(itx, "Date / time:"),
             custom_id=self.custom_id + "_datetime",
             style=discord.TextStyle.short,
             required=True,
+            default=(
+                utils.time.format_datetime(reminder.remind_date) if reminder else None
+            ),
             placeholder="24-12-2024 12:24:36 / 1w5d13h36m",
             max_length=19,
             min_length=2,
         )
 
         self.message_input = discord.ui.TextInput(
-            label=label,
+            label=_(itx, "Message:"),
             custom_id=self.custom_id + "_message",
             style=discord.TextStyle.long,
             required=False,
+            default=reminder.message if reminder else None,
             placeholder="(Optional) Reminder message",
             max_length=1024,
         )
@@ -148,3 +152,8 @@ class RemindModal(discord.ui.Modal):
             await view.itx.response.send_message(
                 _(itx, "Rescheduling aborted."), ephemeral=True
             )
+
+    async def on_error(
+        self, interaction: discord.Interaction, error: Exception
+    ) -> None:
+        raise error

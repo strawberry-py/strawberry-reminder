@@ -127,6 +127,9 @@ msgstr
 msgid Can't reschedule other's reminders.
 msgstr Nemôžeš preplánovať cudzie pripomienky.
 
+msgid Edit reminder
+msgstr Upravit pripomienku
+
 msgid Can't delete other's reminders.
 msgstr Nemôžeš zmazať cudzie pripomienky.
 
@@ -141,6 +144,9 @@ msgstr Nemáte žiadne pripomenutia staršie ako jeden deň.
 
 msgid **{count}** reminders have been deleted.
 msgstr Počet odstránených pripomienok: **{count}**.
+
+msgid Message:
+msgstr Správa:
 
 msgid I don't know how to parse `{datetime_str}`, please try again.
 msgstr Neviem ako prečítať `{datetime_str}`, skúste znovu.

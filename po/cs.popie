@@ -65,7 +65,7 @@ msgid Reminded
 msgstr Upomínaný
 
 msgid Remind date
-msgstr Datum připomenutí
+msgstr Datum upomínky
 
 msgid Status
 msgstr Status
@@ -127,6 +127,9 @@ msgstr Obsah
 msgid Can't reschedule other's reminders.
 msgstr Nemůžeš přeplánovat cizí upomínky.
 
+msgid Edit reminder
+msgstr Upravit upomínku
+
 msgid Can't delete other's reminders.
 msgstr Nemůžeš smazat cizí upomínky.
 
@@ -141,6 +144,9 @@ msgstr Nemáš žádné upomínky starší než jeden den.
 
 msgid **{count}** reminders have been deleted.
 msgstr Bylo smazáno **{count}** upomínek.
+
+msgid Message:
+msgstr Správa:
 
 msgid I don't know how to parse `{datetime_str}`, please try again.
 msgstr Nevím jak přečíst `{datetime_str}`, zkus to znovu.

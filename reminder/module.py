@@ -150,9 +150,9 @@ class Reminder(commands.Cog):
         self, itx: discord.Interaction, message: discord.Message
     ):
         remind_modal = RemindModal(
-            self.bot,
+            bot=self.bot,
+            itx=itx,
             title=_(itx, "Remind me this message"),
-            label=_(itx, "Date / time:"),
             recipient=itx.user,
             message=message,
         )
@@ -168,8 +168,8 @@ class Reminder(commands.Cog):
     ):
         """Create reminder for you."""
         remind_modal = RemindModal(
-            self.bot,
-            title=_(itx, "Remind me this message"),
+            bot=self.bot,
+            itx=itx,
             label=_(itx, "Date / time:"),
             recipient=itx.user,
         )
@@ -223,9 +223,9 @@ class Reminder(commands.Cog):
                 return
 
         remind_modal = RemindModal(
-            self.bot,
+            bot=self.bot,
+            itx=itx,
             title=_(itx, "Remind {member} this message").format(member=member.nick),
-            label=_(itx, "Date / time:"),
             recipient=member,
             message=message,
         )
@@ -368,6 +368,15 @@ class Reminder(commands.Cog):
                 _(itx, "Can't reschedule other's reminders."), ephemeral=True
             )
             return
+
+        remind_modal = RemindModal(
+            bot=self.bot,
+            itx=itx,
+            title=_(itx, "Edit reminder"),
+            recipient=itx.user,
+            reminder=query,
+        )
+        await itx.response.send_modal(remind_modal)
 
     @check.acl2(check.ACLevel.EVERYONE)
     @reminder.command(name="delete", description="Delete reminder")
