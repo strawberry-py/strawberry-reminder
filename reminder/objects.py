@@ -130,6 +130,14 @@ class RemindModal(discord.ui.Modal):
             value=print_date,
             inline=False,
         )
+
+        message = utils.text.shorten(self.message_input.value, 1024)
+
+        embed.add_field(
+            name=_(itx, "New message"),
+            value=message,
+            inline=False,
+        )
         embed.title = _(itx, "Do you want to reschedule this reminder?")
         view = ConfirmView(itx, embed)
 
@@ -139,6 +147,7 @@ class RemindModal(discord.ui.Modal):
         elif value:
             self.reminder.remind_date = date
             self.reminder.status = ReminderStatus.WAITING
+            self.reminder.message = message
             self.reminder.save()
             await view.itx.response.send_message(
                 _(itx, "Reminder rescheduled."), ephemeral=True

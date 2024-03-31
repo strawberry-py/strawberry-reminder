@@ -157,6 +157,9 @@ msgstr Upomínka #{idx} byla vytvořena. Bude odeslána **{date}**.
 msgid New time
 msgstr Nový čas
 
+msgid New message
+msgstr Nová zpráva
+
 msgid Do you want to reschedule this reminder?
 msgstr Opravdu chceš změnit čas této upomínky?
 
