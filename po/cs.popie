@@ -160,17 +160,17 @@ msgstr Nový čas
 msgid New message
 msgstr Nová zpráva
 
-msgid Do you want to reschedule this reminder?
-msgstr Opravdu chceš změnit čas této upomínky?
+msgid Do you want to edit this reminder?
+msgstr Opravdu chceš upravit tuto upomínku?
 
-msgid Reschedule timed out.
-msgstr Čas na přeplánování vypršel.
+msgid Reminder edit timed out.
+msgstr Čas na změnu upomínky vypršel.
 
-msgid Reminder rescheduled.
-msgstr Upomínka přeplánována.
+msgid Reminder edited.
+msgstr Upomínka upravena
 
-msgid Rescheduling aborted.
-msgstr Přeplánování zrušeno.
+msgid Reminder edit aborted.
+msgstr Úprava upomínky zrušena
 
 msgid Unknown user
 msgstr Neznámý uživatel

@@ -138,28 +138,28 @@ class RemindModal(discord.ui.Modal):
             value=message,
             inline=False,
         )
-        embed.title = _(itx, "Do you want to reschedule this reminder?")
+        embed.title = _(itx, "Do you want to edit this reminder?")
         view = ConfirmView(itx, embed)
 
         value = await view.send()
         if value is None:
-            await view.itx.response.send_message(_(itx, "Reschedule timed out."))
+            await view.itx.response.send_message(_(itx, "Reminder edit timed out."))
         elif value:
             self.reminder.remind_date = date
             self.reminder.status = ReminderStatus.WAITING
             self.reminder.message = message
             self.reminder.save()
             await view.itx.response.send_message(
-                _(itx, "Reminder rescheduled."), ephemeral=True
+                _(itx, "Reminder edited."), ephemeral=True
             )
             await bot_log.debug(
                 itx.user,
                 itx.channel,
-                f"Reminder #{self.reminder.idx} rescheduled to {print_date}.",
+                f"Reminder #{self.reminder.idx} edited and scheduled to {print_date}.",
             )
         else:
             await view.itx.response.send_message(
-                _(itx, "Rescheduling aborted."), ephemeral=True
+                _(itx, "Reminder edit aborted."), ephemeral=True
             )
 
     async def on_error(
