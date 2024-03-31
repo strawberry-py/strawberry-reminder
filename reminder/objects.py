@@ -143,7 +143,7 @@ class RemindModal(discord.ui.Modal):
 
         value = await view.send()
         if value is None:
-            await view.itx.response.send_message(_(itx, "Reminder edit timed out."))
+            await itx.user.send(_(itx, "Reminder edit timed out."))
         elif value:
             self.reminder.remind_date = date
             self.reminder.status = ReminderStatus.WAITING
@@ -158,9 +158,7 @@ class RemindModal(discord.ui.Modal):
                 f"Reminder #{self.reminder.idx} edited and scheduled to {print_date}.",
             )
         else:
-            await view.itx.response.send_message(
-                _(itx, "Reminder edit aborted."), ephemeral=True
-            )
+            await view.itx.response.send_message(_(itx, "Reminder edit aborted."))
 
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
