@@ -107,7 +107,7 @@ class RemindModal(discord.ui.Modal):
         await bot_log.debug(
             itx.user,
             itx.channel,
-            f"Reminder #{item.idx} created for {itx.user.name} "
+            f"Reminder #{item.idx} created for {self.recipient.name} "
             f"to be sent on {item.remind_date}.",
         )
 
@@ -130,8 +130,6 @@ class RemindModal(discord.ui.Modal):
             value=print_date,
             inline=False,
         )
-
-        message = utils.text.shorten(self.message_input.value, 1024)
 
         embed.add_field(
             name=_(itx, "New message"),

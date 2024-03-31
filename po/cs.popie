@@ -76,9 +76,6 @@ msgstr Obsah zprávy
 msgid Remind me this message
 msgstr Připomeň mi tuto zprávu
 
-msgid Date / time:
-msgstr Datum / čas:
-
 msgid Incorrect message URL!
 msgstr Špatná URL zprávy!
 
@@ -144,6 +141,9 @@ msgstr Nemáš žádné upomínky starší než jeden den.
 
 msgid **{count}** reminders have been deleted.
 msgstr Bylo smazáno **{count}** upomínek.
+
+msgid Date / time:
+msgstr Datum / čas:
 
 msgid Message:
 msgstr Správa:

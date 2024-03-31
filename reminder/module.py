@@ -170,7 +170,7 @@ class Reminder(commands.Cog):
         remind_modal = RemindModal(
             bot=self.bot,
             itx=itx,
-            label=_(itx, "Date / time:"),
+            title=_(itx, "Remind me this message"),
             recipient=itx.user,
         )
         await itx.response.send_modal(remind_modal)
@@ -189,7 +189,7 @@ class Reminder(commands.Cog):
         member: discord.Member,
         message_url: Optional[str] = None,
     ):
-        message: discord.Message
+        message: discord.Message = None
         if message_url:
             split: Tuple[int, int, int] = utils.discord.split_message_url(
                 self.bot, message_url
