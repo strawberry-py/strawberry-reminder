@@ -159,8 +159,3 @@ class RemindModal(discord.ui.Modal):
             )
         else:
             await view.itx.response.send_message(_(itx, "Reminder edit aborted."))
-
-    async def on_error(
-        self, interaction: discord.Interaction, error: Exception
-    ) -> None:
-        raise error
