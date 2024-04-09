@@ -1,13 +1,14 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import List, Optional
 
 import dateutil.parser
 import dateutil.relativedelta
 from discord.ext import commands
 
-from pie.utils import ConfirmView
-from .database import CountdownItem
 from pie import check, i18n, logger, utils
+from pie.utils import ConfirmView
+
+from .database import CountdownItem
 
 _ = i18n.Translator("modules/reminder").translate
 bot_log = logger.Bot.logger()
@@ -97,7 +98,12 @@ class Countdown(commands.Cog):
     @check.acl2(check.ACLevel.MEMBER)
     @countdown_.command(name="set")
     async def countdown_set(
-        self, ctx: commands.Context, name: str, datetime_str: str, *, text: Optional[str]
+        self,
+        ctx: commands.Context,
+        name: str,
+        datetime_str: str,
+        *,
+        text: Optional[str],
     ):
         """Set new countdown.
 
