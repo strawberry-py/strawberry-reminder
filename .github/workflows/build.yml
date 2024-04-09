@@ -37,20 +37,26 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.python-version }}-
             ${{ runner.os }}-
+
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip wheel
           python3 -m pip install --upgrade --upgrade-strategy eager -r requirements.txt
           python3 -m pip install --upgrade --upgrade-strategy eager -r requirements-dev.txt
+
       - name: Check the code formatting
         run: |
           black . --diff
+          isort . -c
+
       - name: Check the code for errors
         run: |
           flake8 . --count --statistics
+
       - name: Run PoPie
         run: |
           popie --detached --strict --diff .
+
       - name: Check TODOs
         run: |
           flake8 . --select=T --exit-zero
