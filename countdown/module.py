@@ -30,11 +30,13 @@ class Countdown(commands.Cog):
         return text
 
     def _get_remaining_time(self, countdown_item: CountdownItem) -> str:
-        if countdown_item.countdown_date < datetime.now():
+        if countdown_item.countdown_date < datetime.now().astimezone():
             return "Finished"
         else:
             return utils.time.format_seconds(
-                (countdown_item.countdown_date - datetime.now()).total_seconds()
+                (
+                    countdown_item.countdown_date - datetime.now().astimezone()
+                ).total_seconds()
             )
 
     async def _get_embed(self, ctx, countdown: CountdownItem):
