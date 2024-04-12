@@ -31,8 +31,8 @@ msgstr Odpočet '{name}' již existuje.
 msgid I don't know how to parse `{datetime_str}`, pleasy try again.
 msgstr
 
-msgid Time must be in future.
-msgstr Čas musí být v budoucnosti.
+msgid Can't use {datetime_str} as time must be in future.
+msgstr Nelze použít {datetime_str}, protože Čas musí být v budoucnosti.
 
 msgid Countdown '{name}' to **{date}** created. Remaining time is {time}.
 msgstr Odpočet '{name}' do **{date}** vytvořen. Zbývající čas je {time}.
@@ -55,15 +55,6 @@ msgstr Odpočet odstraněn.
 msgid Deleting aborted.
 msgstr Mazání zrušeno.
 
-msgid Unknown user
-msgstr Neznámý uživatel
-
-msgid Reminder
-msgstr Upomínka
-
-msgid Reminded by
-msgstr Autor upomínky
-
 msgid (unknown)
 msgstr (neznámý)
 
@@ -74,7 +65,7 @@ msgid Reminded
 msgstr Upomínaný
 
 msgid Remind date
-msgstr Datum připomenutí
+msgstr Datum upomínky
 
 msgid Status
 msgstr Status
@@ -82,14 +73,20 @@ msgstr Status
 msgid Message text
 msgstr Obsah zprávy
 
-msgid I don't know how to parse `{datetime_str}`, please try again.
-msgstr Nevím jak přečíst `{datetime_str}`, zkus to znovu.
+msgid Remind me this message
+msgstr Připomeň mi tuto zprávu
 
-msgid Reminder #{idx} created. It will be sent on **{date}**.
-msgstr Upomínka #{idx} byla vytvořena. Bude odeslána **{date}**.
+msgid Incorrect message URL!
+msgstr Špatná URL zprávy!
 
-msgid Reminder #{idx} created for {name}. It will be sent on **{date}**.
-msgstr Upomínka #{idx} byla vytvořena pro uživatele {name}. Bude odeslána **{date}**.
+msgid The message must be on the same server as the reminded user!
+msgstr Zpráva musí být ze stejného serveur, jako uživatel!
+
+msgid Message not found!
+msgstr Zpráva nenalezena!
+
+msgid Remind {member} this message
+msgstr Připomeň {member} tuto zprávu
 
 msgid Invalid status. Allowed: {status}
 msgstr Neplatný status. Povolené: {status}
@@ -127,23 +124,8 @@ msgstr Obsah
 msgid Can't reschedule other's reminders.
 msgstr Nemůžeš přeplánovat cizí upomínky.
 
-msgid Original time
-msgstr Původní čas
-
-msgid New time
-msgstr Nový čas
-
-msgid Do you want to reschedule this reminder?
-msgstr Opravdu chceš změnit čas této upomínky?
-
-msgid Reschedule timed out.
-msgstr Čas na přeplánování vypršel.
-
-msgid Reminder rescheduled.
-msgstr Upomínka přeplánována.
-
-msgid Rescheduling aborted.
-msgstr Přeplánování zrušeno.
+msgid Edit reminder
+msgstr Upravit upomínku
 
 msgid Can't delete other's reminders.
 msgstr Nemůžeš smazat cizí upomínky.
@@ -159,3 +141,42 @@ msgstr Nemáš žádné upomínky starší než jeden den.
 
 msgid **{count}** reminders have been deleted.
 msgstr Bylo smazáno **{count}** upomínek.
+
+msgid Date / time:
+msgstr Datum / čas:
+
+msgid Message:
+msgstr Správa:
+
+msgid I don't know how to parse `{datetime_str}`, please try again.
+msgstr Nevím jak přečíst `{datetime_str}`, zkus to znovu.
+
+msgid Reminder #{idx} created. It will be sent on **{date}**.
+msgstr Upomínka #{idx} byla vytvořena. Bude odeslána **{date}**.
+
+msgid New time
+msgstr Nový čas
+
+msgid New message
+msgstr Nová zpráva
+
+msgid Do you want to edit this reminder?
+msgstr Opravdu chceš upravit tuto upomínku?
+
+msgid Reminder edit timed out.
+msgstr Čas na změnu upomínky vypršel.
+
+msgid Reminder edited.
+msgstr Upomínka upravena
+
+msgid Reminder edit aborted.
+msgstr Úprava upomínky zrušena
+
+msgid Unknown user
+msgstr Neznámý uživatel
+
+msgid Reminder
+msgstr Upomínka
+
+msgid Reminded by
+msgstr Autor upomínky
