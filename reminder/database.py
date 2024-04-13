@@ -4,8 +4,9 @@ import enum
 from datetime import datetime
 from typing import Dict, List
 
-import discord
 from sqlalchemy import BigInteger, Column, DateTime, Enum, Integer, String
+
+import discord
 
 from pie.database import database, session
 
