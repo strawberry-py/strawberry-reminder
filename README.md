@@ -1,9 +1,11 @@
 # Strawberry Reminder
 
-A set of [strawberry.py](https://github.com/strawberry-py) modules.
+A set of [strawberry.py](https://github.com/strawberry-py) modules and a fork of [pumpkin-reminder](https://github.com/pumpkin-py/pumpkin-reminder)
 
-**HELP WANTED**
+## Authors
 
-This repository will be new place for old [Amadeus](https://github.com/Czechbol/Amadeus) cogs. Check out the [issues](https://github.com/strawberry-py/strawberry-reminder/issues) to see what is to be done and what is being worked on.
+The repository is mantained by [Fialin](https://github.com/j-fiala) and [ArcasCZ](https://github.com/ArcasCZ).
 
-Feel free to open an Issue or even PR if you want to help us with migration to the new framework!
+The original module was created mostly by [sinus-x](https://github.com/sinus-x) and [Czechbol](https://github.com/Czechbol).
+
+We also have several amazing contributors -- see them at the **Contributors** section on the right panel!
