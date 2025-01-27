@@ -145,7 +145,7 @@ class Reminder(commands.Cog):
 
     # CONTEXT MENU
 
-    @check.acl2(check.ACLevel.EVERYONE)
+    @check.app_acl(check.ACLevel.EVERYONE)
     async def remindme_menu_handler(
         self, itx: discord.Interaction, message: discord.Message
     ):
@@ -160,7 +160,7 @@ class Reminder(commands.Cog):
 
     # COMMANDS
 
-    @check.acl2(check.ACLevel.EVERYONE)
+    @check.app_acl(check.ACLevel.EVERYONE)
     @app_commands.command(name="remindme")
     async def remindme(
         self,
@@ -175,7 +175,7 @@ class Reminder(commands.Cog):
         )
         await itx.response.send_modal(remind_modal)
 
-    @check.acl2(check.ACLevel.MEMBER)
+    @check.app_acl(check.ACLevel.MEMBER)
     @app_commands.guild_only()
     @app_commands.command(
         name="remind", description="Create reminder for another user."
@@ -232,7 +232,7 @@ class Reminder(commands.Cog):
         )
         await itx.response.send_modal(remind_modal)
 
-    @check.acl2(check.ACLevel.EVERYONE)
+    @check.app_acl(check.ACLevel.EVERYONE)
     @reminder.command(name="list", description="List reminders for you.")
     @app_commands.choices(
         status=[
@@ -265,7 +265,7 @@ class Reminder(commands.Cog):
 
         await self._send_reminder_list(itx, query)
 
-    @check.acl2(check.ACLevel.EVERYONE)
+    @check.app_acl(check.ACLevel.EVERYONE)
     @reminder.command(name="info", description="Show reminder details.")
     async def reminder_info(self, itx: discord.Interaction, idx: int):
         query = ReminderItem.get_all(guild=itx.guild, idx=idx)
@@ -315,7 +315,7 @@ class Reminder(commands.Cog):
         await itx.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.guild_only()
-    @check.acl2(check.ACLevel.MOD)
+    @check.app_acl(check.ACLevel.MOD)
     @reminder.command(name="all", description="List all guild reminders")
     @app_commands.choices(
         status=[
@@ -348,7 +348,7 @@ class Reminder(commands.Cog):
 
         await self._send_reminder_list(itx, query)
 
-    @check.acl2(check.ACLevel.EVERYONE)
+    @check.app_acl(check.ACLevel.EVERYONE)
     @reminder.command(name="edit", description="Reschedule your reminder.")
     @app_commands.describe(
         idx="Reminder ID",
@@ -379,7 +379,7 @@ class Reminder(commands.Cog):
         )
         await itx.response.send_modal(remind_modal)
 
-    @check.acl2(check.ACLevel.EVERYONE)
+    @check.app_acl(check.ACLevel.EVERYONE)
     @reminder.command(name="delete", description="Delete reminder")
     @app_commands.describe(idx="Reminder ID")
     async def reminder_delete(self, itx: discord.Interaction, idx: int):
@@ -421,7 +421,7 @@ class Reminder(commands.Cog):
                 _(itx, "Deleting aborted."), ephemeral=True
             )
 
-    @check.acl2(check.ACLevel.EVERYONE)
+    @check.app_acl(check.ACLevel.EVERYONE)
     @reminder.command(
         name="clean",
         description="Delete all your reminders that finished at least 24 hours ago.",
