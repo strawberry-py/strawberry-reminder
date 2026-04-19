@@ -138,8 +138,10 @@ class Reminder(commands.Cog):
 
         table_pages: List[str] = utils.text.create_table(reminders[::-1], table_columns)
 
+        await itx.response.defer()
+
         for table_page in table_pages:
-            await itx.response.send_message(
+            await itx.followup.send(
                 "```" + table_page.replace("`", "'") + "```", ephemeral=True
             )
 
